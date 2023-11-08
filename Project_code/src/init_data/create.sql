@@ -29,3 +29,32 @@ CREATE TABLE passengers (
   passenger varchar(50) REFERENCES users(username),
   FOREIGN KEY (tripID) REFERENCES trip(tripID)
 );
+
+-- Create the messaging table
+CREATE TABLE messaging (
+  message_id serial PRIMARY KEY,
+  sender_id integer REFERENCES users(id),
+  receiver_id integer REFERENCES users(id),
+  message_text text,
+  sent_at timestamp
+);
+
+-- Create the ratings table
+CREATE TABLE ratings (
+  rating_id serial PRIMARY KEY,
+  rater_id integer REFERENCES users(id),
+  ratee_id integer REFERENCES users(id),
+  rating_value real, 
+  rated_at timestamp,
+  review text
+);
+
+-- Create the transactions table
+CREATE TABLE transactions (
+  transaction_id serial PRIMARY KEY,
+  sender_id integer REFERENCES users(id),
+  receiver_id integer REFERENCES users(id),
+  amount numeric(10, 2), 
+  description varchar(255),
+  transaction_date timestamp
+);
