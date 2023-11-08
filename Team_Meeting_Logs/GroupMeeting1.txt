@@ -1,0 +1,10 @@
+Group meeting #1
+
+-Discussed direction of project in terms of what needs to be accomplished after meeting
+-Made clear what tasks were designated to each person
+-Talked about data base structure and how to connect it to the overall structure of project
+-Figured out which tasks need to be assigned to which person in project board on git hub.
+-Made sure that git hub repo was ready to be cloned and for individuals to start work
+-Began work for the next week leading up to the next team meeting
+
+The meeting was productive and made sure that the whole group is on the same page.
