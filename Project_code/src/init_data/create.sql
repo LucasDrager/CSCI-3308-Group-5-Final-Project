@@ -1,5 +1,5 @@
 -- Create the users table
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   username varchar(50) PRIMARY KEY,
   first_name varchar(50),
   last_name varchar(50),
@@ -8,7 +8,7 @@ CREATE TABLE users (
 );
 
 -- Create the friends table
-CREATE TABLE friends (
+CREATE TABLE IF NOT EXISTS friends (
   user_a varchar(50),
   user_b varchar(50),
   FOREIGN KEY (user_a) REFERENCES users(username),
@@ -16,7 +16,7 @@ CREATE TABLE friends (
 );
 
 -- Create the trip table
-CREATE TABLE trip (
+CREATE TABLE IF NOT EXISTS trip (
   tripID serial PRIMARY KEY,
   driverID varchar(50) REFERENCES users(username),
   destination varchar(255),
@@ -24,14 +24,14 @@ CREATE TABLE trip (
 );
 
 -- Create the passengers table
-CREATE TABLE passengers (
+CREATE TABLE IF NOT EXISTS passengers (
   tripID integer,
   passenger varchar(50) REFERENCES users(username),
   FOREIGN KEY (tripID) REFERENCES trip(tripID)
 );
 
 -- Create the messaging table
-CREATE TABLE messaging (
+CREATE TABLE IF NOT EXISTS messaging (
   message_id serial PRIMARY KEY,
   sender_id integer REFERENCES users(id),
   receiver_id integer REFERENCES users(id),
@@ -40,7 +40,7 @@ CREATE TABLE messaging (
 );
 
 -- Create the ratings table
-CREATE TABLE ratings (
+CREATE TABLE IF NOT EXISTS ratings (
   rating_id serial PRIMARY KEY,
   rater_id integer REFERENCES users(id),
   ratee_id integer REFERENCES users(id),
@@ -50,7 +50,7 @@ CREATE TABLE ratings (
 );
 
 -- Create the transactions table
-CREATE TABLE transactions (
+CREATE TABLE IF NOT EXISTS transactions (
   transaction_id serial PRIMARY KEY,
   sender_id integer REFERENCES users(id),
   receiver_id integer REFERENCES users(id),
