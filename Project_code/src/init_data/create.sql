@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS friends (
 
 -- Create the trip table
 CREATE TABLE IF NOT EXISTS trip (
-  tripID serial PRIMARY KEY,
+  trip_id serial PRIMARY KEY,
   driverID varchar(50) REFERENCES users(username),
   destination varchar(255),
   original_location varchar(255)
@@ -26,16 +26,16 @@ CREATE TABLE IF NOT EXISTS trip (
 
 -- Create the passengers table
 CREATE TABLE IF NOT EXISTS passengers (
-  tripID integer,
+  trip_id integer,
   passenger varchar(50) REFERENCES users(username),
-  FOREIGN KEY (tripID) REFERENCES trip(tripID)
+  FOREIGN KEY (trip_id) REFERENCES trip(trip_id)
 );
 
 -- Create the messaging table
 CREATE TABLE IF NOT EXISTS messaging (
   message_id serial PRIMARY KEY,
-  sender_id integer REFERENCES users(id),
-  receiver_id integer REFERENCES users(id),
+  sender_id integer REFERENCES users(username),
+  receiver_id integer REFERENCES users(username),
   message_text text,
   sent_at timestamp
 );
@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS messaging (
 -- Create the ratings table
 CREATE TABLE IF NOT EXISTS ratings (
   rating_id serial PRIMARY KEY,
-  rater_id integer REFERENCES users(id),
-  ratee_id integer REFERENCES users(id),
+  rater_id integer REFERENCES users(username),
+  ratee_id integer REFERENCES users(username),
   rating_value real, 
   rated_at timestamp,
   review text
@@ -53,8 +53,8 @@ CREATE TABLE IF NOT EXISTS ratings (
 -- Create the transactions table
 CREATE TABLE IF NOT EXISTS transactions (
   transaction_id serial PRIMARY KEY,
-  sender_id integer REFERENCES users(id),
-  receiver_id integer REFERENCES users(id),
+  sender_id integer REFERENCES users(username),
+  receiver_id integer REFERENCES users(username),
   amount numeric(10, 2), 
   description varchar(255),
   transaction_date timestamp
