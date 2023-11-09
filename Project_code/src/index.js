@@ -38,6 +38,43 @@ db.connect()
 // <!-- Section 3 : App Settings -->
 // *****************************************************
 
+//Login Get call
+app.get("/login", (req,res) => {
+  res.render("pages/login.ejs")
+});
+
+//Login post call
+app.post("/login", async (req,res) => {
+  usernameQuery = `SELECT password FROM users WHERE users.username = $1`
+  var password = ""
+  await db.one(usernameQuery,[req.body.username])
+  .then((data) => {
+    password = data.password
+  })
+  .catch((err) => {
+    console.log(err)
+  });
+  const match = await bcrypt.compare(req.body.password, password);
+  console.log(match)
+  //save user details in session like in lab 8
+  if(match == false){ 
+    console.log('error')
+  } else {
+    req.session.user = req.body.username;
+    req.session.save();
+    res.redirect("/homepage")
+  }
+});
+
+//log out get call
+app.get("/logout", (req, res) => {
+  req.session.destroy();
+  res.render("pages/login.ejs");
+});
+
+
+
+// Authentication and security
 app.set('view engine', 'ejs'); // set the view engine to EJS
 app.use(bodyParser.json()); // specify the usage of JSON for parsing request body.
 
@@ -55,6 +92,7 @@ app.use(
     extended: true,
   })
 );
+//
 
 // *****************************************************
 // <!-- Section 4 : API Routes -->
