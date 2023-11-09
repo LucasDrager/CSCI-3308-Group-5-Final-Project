@@ -1,0 +1,40 @@
+1.	Team Number
+    a.	05
+2.	Team Name
+    a.	Trip Friend
+3.	Team Members
+    a.	Nasir Naqvi
+    b.	Adithya Narayanan
+    c.	Brian Avner
+    d.	Kyle Griffin
+    e.	Phillip Kononenko
+    f.	Lucas Drager
+4.	Application Name
+    a.	Trip Friend
+5.	Application Description
+    a.	Trip Friend is a software most similar to that of a ride-sharing application with some differences.
+    The purpose of this application is to help individuals find rides to various locations like an Uber
+    but instead of an experience designed for one person, Trip Friend is designed for multiple people.
+
+    The original idea was that for example, if you wanted to take a trip to Breckenridge to do some skiing
+    in Colorado, you could use [name] to in essence book a trip with one or more people to avoid having to
+    find transportation for yourself or pay for a bus or uber. The idea is that there is a driver and their
+    passengers, the driver provides the means of transportation, assumed to be a car, and the other individuals
+    will pay for gas. This same logic can be applied to other high-travel areas like supermarkets and whatnot.
+
+    The app calculates distances and monetary amounts while keeping track of users and their ratings.
+    Trip Friend functions on a goodwill basis assuming people are willing to transport others.
+6.	Vision Statement
+    a.	To provide simple transportation at the touch of a button, to connect people and the places they want to be.
+7.	Team Repository
+    a.	https://github.com/LucasDrager/CSCI-3308-Group-5-Final-Project
+8.	Development Methodology
+    a.	Agile (SCRUM)
+    b.	Check Git hub for project board
+9.	Communication plan
+    a.	Our chosen method of communication is a discord server. It’s where we are meant to communicate and organize.
+10.	Meeting Plan
+    a.	 Tuesday 11/7, @ 4 pm
+    b.	Tuesday 11/14, @ 2 pm
+    c.	Tuesday 11/28, @ 2 pm 
+    d.	Tuesday 11/5, @ 2 pm

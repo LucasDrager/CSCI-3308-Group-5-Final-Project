@@ -1,0 +1,55 @@
+TA Meeting #1 - 11/7/2023
+
+Attendance:
+	- Kyle (Scribe)
+	- Brian
+	- Lucas
+	- Nasir
+	- Philip (Absent)
+	- Adithya (Absent)
+
+NOTES:
+
+Meeting Information
+- Release notes must be included
+	- Noted can be automated or manual (if automated, they are released with every push)
+- Make sure commits are merged into main branch before getting into meeting
+- Github contributions will be checked during meeting
+- Update repository and commits before meeting
+- Everyone must have story on their name every week
+- For grading during meetings:
+	- Project boards are analyzed
+- During end of meeting, we must inform TA of our plan for upcoming items
+- Make a directory structure (We already have, but make sure that it starts in the main branch)
+
+Project Information
+- Going to begin with the database, rather than UI
+- Include a trips table (no user info, only trip info)
+- Have a mapping table to map users to trips (Allows for users to easily be added/removed from trips)
+- Make sure username and password are stored in user table
+- Trips table should have info such as name of trip, destination/origin, weather, etc.
+- Database scheme must support functionality
+- Make sure to read API's 'through and through', being espeically careful with google APIs (NOT FREE)
+- Do not move item to DONE until it is merged to main
+
+TODO
+- Make a database scheme and send email to Aishwarya
+- Distribute work for the week
+- TEAM MEETING
+
+Action Items
+- EVERYONE
+	- DATABASE SCHEMA
+- NASIR
+	- Database Creation
+- BRIAN
+	- API functionalities
+	- Trip Page
+- KYLE
+	- Partials (Header, footer, nav-bar)
+- LUCAS
+	- Login/Logout Page
+	- Github Repository Check
+
+- Include Messages
+
