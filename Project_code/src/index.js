@@ -7,7 +7,7 @@ const app = express();
 const pgp = require('pg-promise')(); // To connect to the Postgres DB from the node server
 const bodyParser = require('body-parser');
 const session = require('express-session'); // To set the session object. To store or access session data, use the `req.session`, which is (generally) serialized as JSON by the store.
-const bcrypt = require('bcrypt'); //  To hash passwords
+//const bcrypt = require('bcrypt'); //  To hash passwords
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
@@ -72,6 +72,9 @@ app.get("/logout", (req, res) => {
   res.render("pages/login.ejs");
 });
 
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
+});
 
 
 // Authentication and security
@@ -105,5 +108,5 @@ app.get("/", (req, res) => {
 // <!-- Section 5 : Start Server-->
 // *****************************************************
 // starting the server and keeping the connection open to listen for more requests
-app.listen(3000);
+module.exports = app.listen(3000);
 console.log('Server is listening on port 3000');
