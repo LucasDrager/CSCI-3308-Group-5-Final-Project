@@ -76,18 +76,17 @@ app.post("/login", async (req,res) => {
   })
   .catch((err) => {
     console.log(err)
-    res.redirect("/login")
+    res.redirect("/login");
   });
   const match = await bcrypt.compare(req.body.password, password);
   console.log(match)
   //save user details in session like in lab 8
   if(match == false){ 
-    console.log('error')
-    res.redirect("/login")
+    console.log('error');
   } else {
     req.session.user = req.body.username;
     req.session.save();
-    res.redirect("/homepage")
+    res.redirect("/homepage");
   }
 });
 
