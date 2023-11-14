@@ -7,7 +7,7 @@ const app = express();
 const pgp = require('pg-promise')(); // To connect to the Postgres DB from the node server
 const bodyParser = require('body-parser');
 const session = require('express-session'); // To set the session object. To store or access session data, use the `req.session`, which is (generally) serialized as JSON by the store.
-//const bcrypt = require('bcrypt'); //  To hash passwords
+const bcrypt = require('bcrypt'); //  To hash passwords
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
@@ -38,49 +38,6 @@ db.connect()
 // <!-- Section 3 : App Settings -->
 // *****************************************************
 
-//Login Get call
-app.get("/login", (req,res) => {
-  res.render("pages/login.ejs")
-});
-
-//Login post call
-app.post("/login", async (req,res) => {
-  usernameQuery = `SELECT password FROM users WHERE users.username = $1`
-  var password = ""
-  await db.one(usernameQuery,[req.body.username])
-  .then((data) => {
-    password = data.password
-  })
-  .catch((err) => {
-    console.log(err)
-  });
-  const match = await bcrypt.compare(req.body.password, password);
-  console.log(match)
-  //save user details in session like in lab 8
-  if(match == false){ 
-    console.log('error')
-  } else {
-    req.session.user = req.body.username;
-    req.session.save();
-    res.redirect("/homepage")
-  }
-});
-
-//log out get call
-app.get("/logout", (req, res) => {
-  req.session.destroy();
-  res.render("pages/login.ejs");
-});
-
-app.get('/welcome', (req, res) => {
-  res.json({status: 'success', message: 'Welcome!'});
-});
-
-
-// Authentication and security
-app.set('view engine', 'ejs'); // set the view engine to EJS
-app.use(bodyParser.json()); // specify the usage of JSON for parsing request body.
-
 // initialize session variables
 app.use(
   session({
@@ -101,8 +58,87 @@ app.use(
 // <!-- Section 4 : API Routes -->
 // *****************************************************
 app.get("/", (req, res) => {
-    res.render("pages/homepage.ejs"); //this will call the /anotherRoute route in the API
+  res.redirect("/login"); //sent user to log in page
+});
+
+//Login Get call
+app.get("/login", (req,res) => {
+  res.render("pages/login.ejs")
+});
+
+//Login post call
+app.post("/login", async (req,res) => {
+  usernameQuery = `SELECT password FROM users WHERE users.username = $1`
+  var password = ""
+  await db.one(usernameQuery,[req.body.username])
+  .then((data) => {
+    password = data.password
+  })
+  .catch((err) => {
+    console.log(err)
+    res.redirect("/login")
   });
+  const match = await bcrypt.compare(req.body.password, password);
+  console.log(match)
+  //save user details in session like in lab 8
+  if(match == false){ 
+    console.log('error')
+    res.redirect("/login")
+  } else {
+    req.session.user = req.body.username;
+    req.session.save();
+    res.redirect("/homepage")
+  }
+});
+
+//log out get call
+app.get("/logout", (req, res) => {
+  req.session.destroy();
+  res.render("pages/login.ejs");
+});
+
+//Register get call
+app.get("/register", (req, res) => {
+  res.render("pages/register.ejs")
+});
+
+//Register post call
+app.post("/register", async (req, res) => {
+  //hash the password using bcrypt library //{status: 200, message: 'Failure'}
+  let hash;
+  bcrypt.genSalt(10, function(err, salt) {
+    bcrypt.hash(req.body.password, salt, function(err, passHash) {
+      hash = passHash
+      if (err) { 
+        res.render("pages/register.ejs")
+      } else { 
+        console.log('fetched response');
+        const query = "INSERT INTO users (username, password) VALUES ($1,$2);";
+        db.any(query,[req.body.username,hash])
+        .then((data) => {
+          res.redirect("/login");
+        })
+        .catch((err) => {
+          console.log(err);
+          res.redirect("/register");
+        });
+      }
+    });
+  });
+});
+
+// Lab 11 test call
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
+});
+
+app.get("/homepage", (req, res) => {
+  res.render("pages/homepage.ejs")
+});
+
+// Authentication and security
+app.set('view engine', 'ejs'); // set the view engine to EJS
+app.use(bodyParser.json()); // specify the usage of JSON for parsing request body.
   
 // *****************************************************
 // <!-- Section 5 : Start Server-->
