@@ -52,7 +52,14 @@ app.use(
     extended: true,
   })
 );
-//
+
+const user = {
+  username: undefined,
+  first_name: undefined,
+  last_name: undefined,
+  email: undefined,
+  timestamp: undefined
+};
 
 // *****************************************************
 // <!-- Section 4 : API Routes -->
@@ -67,26 +74,26 @@ app.get("/login", (req,res) => {
 });
 
 //Login post call
-app.post("/login", async (req,res) => {
-  usernameQuery = `SELECT password FROM users WHERE users.username = $1`
-  var password = ""
-  await db.one(usernameQuery,[req.body.username])
-  .then((data) => {
-    password = data.password
-  })
-  .catch((err) => {
-    console.log(err)
-    res.redirect("/login");
-  });
-  const match = await bcrypt.compare(req.body.password, password);
-  console.log(match)
-  //save user details in session like in lab 8
-  if(match == false){ 
-    console.log('error');
-  } else {
-    req.session.user = req.body.username;
-    req.session.save();
-    res.redirect("/homepage");
+app.post("/login", async (req, res) => {
+  try {
+    const usernameQuery = `SELECT password FROM users WHERE users.username = $1`;
+    const data = await db.one(usernameQuery, [req.body.username]);
+    const password = data.password;
+
+    const match = await bcrypt.compare(req.body.password, password);
+
+    if (match) {
+      // Authentication successful
+      req.session.user = req.body.username;
+      req.session.save();
+      res.redirect("/homepage"); 
+    } else {
+      // Authentication failed
+      res.render("pages/login.ejs", { user, error: "Invalid username or password" });
+    }
+  } catch (err) {
+    console.error(err);
+    res.render("pages/login.ejs", { user, error: "An error occurred. Please try again." });
   }
 });
 
@@ -103,27 +110,20 @@ app.get("/register", (req, res) => {
 
 //Register post call
 app.post("/register", async (req, res) => {
-  //hash the password using bcrypt library //{status: 200, message: 'Failure'}
-  let hash;
-  bcrypt.genSalt(10, function(err, salt) {
-    bcrypt.hash(req.body.password, salt, function(err, passHash) {
-      hash = passHash
-      if (err) { 
-        res.render("pages/register.ejs")
-      } else { 
-        console.log('fetched response');
-        const query = "INSERT INTO users (username, password) VALUES ($1,$2);";
-        db.any(query,[req.body.username,hash])
-        .then((data) => {
-          res.redirect("/login");
-        })
-        .catch((err) => {
-          console.log(err);
-          res.redirect("/register");
-        });
-      }
-    });
-  });
+  try {
+    // Hash the password using bcrypt
+    const hash = await bcrypt.hash(req.body.password, 10);
+
+    const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at) VALUES ($1, $2, $3, $4, $5, $6);";
+    const values = [req.body.username.trim(), hash, req.body.first_name.trim(), req.body.last_name.trim(), req.body.email.trim(), new Date()];
+
+    await db.none(query, values);
+
+    res.redirect("/login");
+  } catch (error) {
+    console.error(error);
+    res.redirect("/register");
+  }
 });
 
 // Lab 11 test call
