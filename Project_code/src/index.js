@@ -144,6 +144,16 @@ app.post("/register", async (req, res) => {
   });
 });
 
+// Settings GET API call
+app.get("/settings", (req, res) => {
+  res.render("pages/settings.ejs")
+});
+
+//Settings POST API call
+app.post("/settings", (req, res) => {
+   // To be worked on soon...
+});
+
 // Lab 11 test call
 app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
