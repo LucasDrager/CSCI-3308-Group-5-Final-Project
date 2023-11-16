@@ -150,9 +150,9 @@ app.get("/settings", (req, res) => {
 });
 
 //Settings POST API call
-app.post("/settings", (req, res) => {
-   // To be worked on soon...
-});
+// app.post("/settings", (req, res) => {
+//    // To be worked on soon...
+// });
 
 // Lab 11 test call
 app.get('/welcome', (req, res) => {
