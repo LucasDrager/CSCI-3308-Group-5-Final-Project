@@ -1,4 +1,5 @@
-<body>
+<%- include ('../partials/header') %>
+<main>
     <h1>Settings</h1>
 
     <script src="../../resources/js/settings.js"></script>
@@ -19,9 +20,10 @@
         <button type="submit">Change Password</button>
     </form>
 
-    <form id="deleteAccount" action="/settings/delete-account" method="post">
+    <form id="deleteAccount" action="/settings/delete-account" method="post" onsubmit="return confirmDelete()">
         <label for="confirmDelete">Type 'DELETE' to confirm:</label>
         <input type="text" id="confirmDelete" name="confirmDelete" required>
-        <button type="submit" onclick="return confirmDelete()">Delete Account</button>
+        <button type="submit">Delete Account</button>
     </form>
-</body>
+</main>
+<%- include ('../partials/footer') %>

@@ -37,6 +37,8 @@ db.connect()
 // *****************************************************
 // <!-- Section 3 : App Settings -->
 // *****************************************************
+app.set('view engine', 'ejs'); // set the view engine to EJS
+app.use(bodyParser.json()); // specify the usage of JSON for parsing request body.
 
 // initialize session variables
 app.use(
@@ -52,7 +54,6 @@ app.use(
     extended: true,
   })
 );
-//
 
 // *****************************************************
 // <!-- Section 4 : API Routes -->
@@ -109,17 +110,18 @@ app.post("/register", async (req, res) => {
     bcrypt.hash(req.body.password, salt, function(err, passHash) {
       hash = passHash
       if (err) { 
-        res.render("pages/register.ejs")
+        res.redirect(400,"/register");
       } else { 
         console.log('fetched response');
         const query = "INSERT INTO users (username, password) VALUES ($1,$2);";
         db.any(query,[req.body.username,hash])
         .then((data) => {
-          res.redirect("/login");
+          res.redirect("/login")
+          //res.redirect("/login");
         })
         .catch((err) => {
           console.log(err);
-          res.redirect("/register");
+          res.redirect(400,"/register");
         });
       }
     });
