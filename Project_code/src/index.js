@@ -146,85 +146,85 @@ app.get('/welcome', (req, res) => {
 app.get("/homepage", (req, res) => {
   res.render("pages/homepage.ejs")
 });
-app.get('/trips', async (req, res) => {
-  try {
-    const trips = await db.getAllTrips();
-    res.json(trips);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+// app.get('/trips', async (req, res) => {
+//   try {
+//     const trips = await db.getAllTrips();
+//     res.json(trips);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// });
 
-const getAllTrips = async () => {
-  const result = await pool.query('SELECT * FROM trip');
-  return result.rows;
-};
+// const getAllTrips = async () => {
+//   const result = await pool.query('SELECT * FROM trip');
+//   return result.rows;
+// };
 
-module.exports = {
-  getAllTrips,
-};
+// module.exports = {
+//   getAllTrips,
+// };
 
 
-document.addEventListener('DOMContentLoaded', () => {
-    fetchAndDisplayTrips();
-  });
+// document.addEventListener('DOMContentLoaded', () => {
+//     fetchAndDisplayTrips();
+//   });
   
-  const fetchAndDisplayTrips = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/trips');
-      const trips = await response.json();
+//   const fetchAndDisplayTrips = async () => {
+//     try {
+//       const response = await fetch('http://localhost:3000/trips');
+//       const trips = await response.json();
   
-      const tripsContainer = document.getElementById('trips-container');
-      tripsContainer.innerHTML = '';
+//       const tripsContainer = document.getElementById('trips-container');
+//       tripsContainer.innerHTML = '';
   
-      trips.forEach((trip) => {
-        const tripCard = createTripCard(trip);
-        tripsContainer.appendChild(tripCard);
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
+//       trips.forEach((trip) => {
+//         const tripCard = createTripCard(trip);
+//         tripsContainer.appendChild(tripCard);
+//       });
+//     } catch (error) {
+//       console.error(error);
+//     }
+//   };
   
-  const createTripCard = (trip) => {
-    const tripCard = document.createElement('div');
-    tripCard.className = 'trip-card';
+//   const createTripCard = (trip) => {
+//     const tripCard = document.createElement('div');
+//     tripCard.className = 'trip-card';
   
-    const tripTitle = document.createElement('h3');
-    tripTitle.textContent = trip.destination;
+//     const tripTitle = document.createElement('h3');
+//     tripTitle.textContent = trip.destination;
   
-    const fromDate = document.createElement('p');
-    fromDate.innerHTML = `<strong>From:</strong> ${trip.original_location}`;
+//     const fromDate = document.createElement('p');
+//     fromDate.innerHTML = `<strong>From:</strong> ${trip.original_location}`;
   
-    // Add other trip details here...
+//     // Add other trip details here...
   
-    const cancelButton = document.createElement('button');
-    cancelButton.textContent = 'Cancel Trip';
-    cancelButton.addEventListener('click', () => cancelTrip(trip.trip_id));
+//     const cancelButton = document.createElement('button');
+//     cancelButton.textContent = 'Cancel Trip';
+//     cancelButton.addEventListener('click', () => cancelTrip(trip.trip_id));
   
-    tripCard.appendChild(tripTitle);
-    tripCard.appendChild(fromDate);
-    // Add other trip details here...
+//     tripCard.appendChild(tripTitle);
+//     tripCard.appendChild(fromDate);
+//     // Add other trip details here...
   
-    tripCard.appendChild(cancelButton);
+//     tripCard.appendChild(cancelButton);
   
-    return tripCard;
-  };
+//     return tripCard;
+//   };
   
-  const cancelTrip = async (tripId) => {
-    try {
-      // Implement cancel trip logic here...
-      console.log(`Cancel trip with ID ${tripId}`);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+//   const cancelTrip = async (tripId) => {
+//     try {
+//       // Implement cancel trip logic here...
+//       console.log(`Cancel trip with ID ${tripId}`);
+//     } catch (error) {
+//       console.error(error);
+//     }
+//   };
   
-  const searchTrip = () => {
-    // Implement search trip logic here...
-    console.log('Search for a trip');
-  };
+//   const searchTrip = () => {
+//     // Implement search trip logic here...
+//     console.log('Search for a trip');
+//   };
   
 // Authentication Middleware.
 const auth = (req, res, next) => {
@@ -234,6 +234,49 @@ const auth = (req, res, next) => {
   }
   next();
 };
+
+//Create a trip:
+
+app.post("/trip", (req, res) => {
+  const query = "INSERT INTO trip (driverID, destination, original_location) VALUES ($1, $2, $3);";
+  db.none(query, [req.body.driverID, req.body.destination, req.body.original_location])
+    .then(() => {
+      res.json({ status: 'success', message: 'Trip created successfully' });
+    })
+    .catch(err => {
+      console.log(err);
+      res.json({ status: 'error', message: 'Failed to create trip' });
+    });
+});
+
+//Edit trip details:
+
+app.put("/trip/:trip_id", (req, res) => {
+  const query = "UPDATE trip SET driverID = $1, destination = $2, original_location = $3 WHERE trip_id = $4;";
+  db.none(query, [req.body.driverID, req.body.destination, req.body.original_location, req.params.trip_id])
+    .then(() => {
+      res.json({ status: 'success', message: 'Trip updated successfully' });
+    })
+    .catch(err => {
+      console.log(err);
+      res.json({ status: 'error', message: 'Failed to update trip' });
+    });
+});
+
+
+//Add passengers to trip:
+
+app.post("/trip/:trip_id/passenger", (req, res) => {
+  const query = "INSERT INTO passengers (trip_id, passenger) VALUES ($1, $2);";
+  db.none(query, [req.params.trip_id, req.body.passenger])
+    .then(() => {
+      res.json({ status: 'success', message: 'Passenger added successfully' });
+    })
+    .catch(err => {
+      console.log(err);
+      res.json({ status: 'error', message: 'Failed to add passenger' });
+    });
+});
 
 // Authentication Required
 app.use(auth);
