@@ -225,17 +225,26 @@ const auth = (req, res, next) => {
   next();
 };
 
+//Go to createTrip page
+app.get("/createTrip", (req, res) => {
+  res.render("pages/createTrip.ejs")
+});
+
 //Create a trip:
 
 app.post("/trip", (req, res) => {
   const query = "INSERT INTO trip (driverID, destination, original_location) VALUES ($1, $2, $3);";
-  db.none(query, [req.body.driverID, req.body.destination, req.body.original_location])
+  //REMOVE COMMENT. Attempt to use both session variable and variable from page.
+  db.none(query, [req.session.user, req.body.destination, req.body.original_location])
     .then(() => {
-      res.json({ status: 'success', message: 'Trip created successfully' });
+      // res.json({ status: 'success', message: 'Trip created successfully' });
+      console.log('Trip created successfully');
+      // document.getElementById('addedTripInfo').innerHTML = "Test 1";
     })
     .catch(err => {
       console.log(err);
-      res.json({ status: 'error', message: 'Failed to create trip' });
+      // res.json({ status: 'error', message: 'Failed to update trip' });
+      // document.getElementById('addedTripInfo').innerHTML = "Oops, something went wrong";
     });
 });
 
@@ -243,13 +252,16 @@ app.post("/trip", (req, res) => {
 
 app.put("/trip/:trip_id", (req, res) => {
   const query = "UPDATE trip SET driverID = $1, destination = $2, original_location = $3 WHERE trip_id = $4;";
-  db.none(query, [req.body.driverID, req.body.destination, req.body.original_location, req.params.trip_id])
+  db.none(query, [req.session.user, req.body.destination, req.body.original_location, req.params.trip_id])
     .then(() => {
-      res.json({ status: 'success', message: 'Trip updated successfully' });
+      // res.json({ status: 'success', message: 'Trip updated successfully' });
+      console.log('Trip updated successfully');
+      // document.getElementById('addedTripInfo').innerHTML = "Test 1";
     })
     .catch(err => {
       console.log(err);
-      res.json({ status: 'error', message: 'Failed to update trip' });
+      // res.json({ status: 'error', message: 'Failed to update trip' });
+      document.getElementById('addedTripInfo').innerHTML = "Oops, something went wrong";
     });
 });
 
