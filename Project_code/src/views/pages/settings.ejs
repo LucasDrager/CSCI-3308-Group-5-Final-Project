@@ -1,15 +1,16 @@
-<body>
+<%- include ('../partials/header') %>
+<main>
     <h1>Settings</h1>
 
     <script src="../../resources/js/settings.js"></script>
     
-    <form id="changeUsername" action="/settings/change-username" method="post">
+    <form id="changeUsername" action="/settings" method="POST">
         <label for="newUsername">New Username:</label>
         <input type="text" id="newUsername" name="newUsername" required>
         <button type="submit">Change Username</button>
     </form>
 
-    <form id="changePassword" action="/settings/change-password" method="post">
+    <form id="changePassword" action="/settings" method="POST">
         <label for="currentPassword">Current Password:</label>
         <input type="password" id="currentPassword" name="currentPassword" required>
         
@@ -19,9 +20,10 @@
         <button type="submit">Change Password</button>
     </form>
 
-    <form id="deleteAccount" action="/settings/delete-account" method="post">
+    <form id="deleteAccount" action="/settings" method="POST" onsubmit="return confirmDelete()">
         <label for="confirmDelete">Type 'DELETE' to confirm:</label>
         <input type="text" id="confirmDelete" name="confirmDelete" required>
-        <button type="submit" onclick="return confirmDelete()">Delete Account</button>
+        <button type="submit">Delete Account</button>
     </form>
-</body>
+</main>
+<%- include ('../partials/footer') %>
