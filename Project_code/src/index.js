@@ -239,12 +239,10 @@ app.post("/trip", (req, res) => {
     .then(() => {
       // res.json({ status: 'success', message: 'Trip created successfully' });
       console.log('Trip created successfully');
-      // document.getElementById('addedTripInfo').innerHTML = "Test 1";
     })
     .catch(err => {
       console.log(err);
       // res.json({ status: 'error', message: 'Failed to update trip' });
-      // document.getElementById('addedTripInfo').innerHTML = "Oops, something went wrong";
     });
 });
 
@@ -256,12 +254,10 @@ app.put("/trip/:trip_id", (req, res) => {
     .then(() => {
       // res.json({ status: 'success', message: 'Trip updated successfully' });
       console.log('Trip updated successfully');
-      // document.getElementById('addedTripInfo').innerHTML = "Test 1";
     })
     .catch(err => {
       console.log(err);
       // res.json({ status: 'error', message: 'Failed to update trip' });
-      document.getElementById('addedTripInfo').innerHTML = "Oops, something went wrong";
     });
 });
 
