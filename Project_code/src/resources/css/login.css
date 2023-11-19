@@ -1,8 +1,16 @@
 body {
   margin: 0;
   color: #6a6f8c;
-  background: #c8c8c8;
+  background: #ffffff; /* Default background color for light mode */
+
   font: 600 16px/18px "Open Sans", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #1a1a1a; /* Dark mode background color */
+    color: #ffffff; /* Dark mode text color */
+  }
 }
 *,
 :after,
@@ -28,18 +36,38 @@ a {
   max-width: 525px;
   min-height: 670px;
   position: relative;
-  /* background: url(https://raw.githubusercontent.com/khadkamhn/day-01-login-form/master/img/bg.jpg)
-    no-repeat center; */
+  background: url(https://newyorkrentalbyowner.com/blog/wp-content/uploads/2019/09/Skiing-in-Upstate-New-York-10-Best-Ski-Resorts-For-Your-Winter-Vacation.jpeg)
+    no-repeat center;
+  background-size: cover; /* Make the background image cover the container */
   box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24),
     0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 15px; 
+
 }
+
 .login-html {
   width: 100%;
   height: 100%;
   position: absolute;
   padding: 90px 70px 50px 70px;
-  background: rgba(40, 57, 101, 0.9);
+  background: rgba(0, 0, 0, 0.65); 
+  box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  z-index: 1;
+  border-radius: 15px; 
+  overflow:hidden;
+
 }
+
+.login-form {
+  min-height: 345px;
+  position: relative;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  z-index: 2; 
+  border-radius: 15px; 
+}
+
+
 .login-html .sign-in-htm,
 .login-html .sign-up-htm {
   top: 0;
@@ -168,7 +196,7 @@ a {
 }
 .hr {
   height: 2px;
-  margin: 60px 0 50px 0;
+  margin: 20px 0 20px 0;
   background: rgba(255, 255, 255, 0.2);
 }
 .foot-lnk {
