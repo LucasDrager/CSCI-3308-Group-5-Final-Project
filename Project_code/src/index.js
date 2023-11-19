@@ -48,6 +48,7 @@ app.use(
     resave: false,
   })
 );
+app.use('/resources', express.static('resources'));
 
 app.use(
   bodyParser.urlencoded({
@@ -66,12 +67,13 @@ const user = {
 // <!-- Section 4 : API Routes -->
 // *****************************************************
 app.get("/", (req, res) => {
-  res.redirect("/login"); //sent user to log in page
+  res.render("pages/login.ejs", { showSignUpPanel: false });
 });
+
 
 //Login Get call
 app.get("/login", (req,res) => {
-  res.render("pages/login.ejs")
+  res.render("pages/login.ejs", { showSignUpPanel: false });
 });
 
 //Login post call
@@ -90,24 +92,25 @@ app.post("/login", async (req, res) => {
       res.redirect("/homepage"); 
     } else {
       // Authentication failed
-      res.render("pages/login.ejs", { user, error: "Invalid username or password" });
+      res.render("pages/login.ejs", { user, showSignUpPanel: false, error: "Invalid username or password" });
     }
   } catch (err) {
     console.error(err);
-    res.render("pages/login.ejs", { user, error: "An error occurred. Please try again." });
+    res.render("pages/login.ejs", { user, showSignUpPanel: false, error: "An error occurred. Please try again." });
   }
 });
 
 //log out get call
 app.get("/logout", (req, res) => {
   req.session.destroy();
-  res.render("pages/login.ejs");
+  res.render("pages/login.ejs", { showSignUpPanel: false });
 });
 
 //Register get call
 app.get("/register", (req, res) => {
-  res.render("pages/register.ejs")
+  res.render("pages/login.ejs", { showSignUpPanel: true });
 });
+
 
 //Register post call
 app.post("/register", async (req, res) => {
