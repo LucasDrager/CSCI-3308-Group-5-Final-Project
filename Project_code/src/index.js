@@ -97,6 +97,7 @@ app.post("/login", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.render("pages/login.ejs", { user, showSignUpPanel: false, error: "An error occurred. Please try again." });
+
   }
 });
 
@@ -114,7 +115,9 @@ app.get("/register", (req, res) => {
 
 //Register post call
 app.post("/register", async (req, res) => {
-  //hash the password using bcrypt library //{status: 200, message: 'Failure'}
+  //hash the password using bcrypt library
+  const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at) VALUES ($1, $2, $3, $4, $5, $6);";
+  const values = [req.body.username.trim(), hash, req.body.first_name.trim(), req.body.last_name.trim(), req.body.email.trim(), new Date()];
   let hash;
   bcrypt.genSalt(10, function(err, salt) {
     bcrypt.hash(req.body.password, salt, function(err, passHash) {
@@ -123,8 +126,7 @@ app.post("/register", async (req, res) => {
         res.render("pages/register.ejs")
       } else { 
         console.log('fetched response');
-        const query = "INSERT INTO users (username, password) VALUES ($1,$2);";
-        db.any(query,[req.body.username,hash])
+        db.any(query,values)
         .then((data) => {
           res.redirect("/login");
         })
