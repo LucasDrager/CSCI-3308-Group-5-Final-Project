@@ -55,6 +55,8 @@ app.use(
   })
 );
 
+app.use("/resources", express.static('./resources/'));
+
 // *****************************************************
 // <!-- Section 4 : API Routes -->
 // *****************************************************
@@ -138,6 +140,16 @@ app.get("/settings", (req, res) => {
 //    // To be worked on soon...
 // });
 
+// Profile Page GET API call
+app.get("/profile", (req, res) => {
+  res.render("pages/profile.ejs")
+});
+
+// Profile Page POST API call
+// app.post("/profile", (req, res) => {
+//   // to be worked on
+// });
+
 // Lab 11 test call
 app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
@@ -166,51 +178,51 @@ module.exports = {
 };
 
 
-document.addEventListener('DOMContentLoaded', () => {
-    fetchAndDisplayTrips();
-  });
+// document.addEventListener('DOMContentLoaded', () => {
+//     fetchAndDisplayTrips();
+//   });
   
-  const fetchAndDisplayTrips = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/trips');
-      const trips = await response.json();
+//   const fetchAndDisplayTrips = async () => {
+//     try {
+//       const response = await fetch('http://localhost:3000/trips');
+//       const trips = await response.json();
   
-      const tripsContainer = document.getElementById('trips-container');
-      tripsContainer.innerHTML = '';
+//       const tripsContainer = document.getElementById('trips-container');
+//       tripsContainer.innerHTML = '';
   
-      trips.forEach((trip) => {
-        const tripCard = createTripCard(trip);
-        tripsContainer.appendChild(tripCard);
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
+//       trips.forEach((trip) => {
+//         const tripCard = createTripCard(trip);
+//         tripsContainer.appendChild(tripCard);
+//       });
+//     } catch (error) {
+//       console.error(error);
+//     }
+//   };
   
-  const createTripCard = (trip) => {
-    const tripCard = document.createElement('div');
-    tripCard.className = 'trip-card';
+//   const createTripCard = (trip) => {
+//     const tripCard = document.createElement('div');
+//     tripCard.className = 'trip-card';
   
-    const tripTitle = document.createElement('h3');
-    tripTitle.textContent = trip.destination;
+//     const tripTitle = document.createElement('h3');
+//     tripTitle.textContent = trip.destination;
   
-    const fromDate = document.createElement('p');
-    fromDate.innerHTML = `<strong>From:</strong> ${trip.original_location}`;
+//     const fromDate = document.createElement('p');
+//     fromDate.innerHTML = `<strong>From:</strong> ${trip.original_location}`;
   
-    // Add other trip details here...
+//     // Add other trip details here...
   
-    const cancelButton = document.createElement('button');
-    cancelButton.textContent = 'Cancel Trip';
-    cancelButton.addEventListener('click', () => cancelTrip(trip.trip_id));
+//     const cancelButton = document.createElement('button');
+//     cancelButton.textContent = 'Cancel Trip';
+//     cancelButton.addEventListener('click', () => cancelTrip(trip.trip_id));
   
-    tripCard.appendChild(tripTitle);
-    tripCard.appendChild(fromDate);
-    // Add other trip details here...
+//     tripCard.appendChild(tripTitle);
+//     tripCard.appendChild(fromDate);
+//     // Add other trip details here...
   
-    tripCard.appendChild(cancelButton);
+//     tripCard.appendChild(cancelButton);
   
-    return tripCard;
-  };
+//     return tripCard;
+//   };
   
   const cancelTrip = async (tripId) => {
     try {
