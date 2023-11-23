@@ -1,22 +1,73 @@
 <%- include ('../partials/header') %>
-<main>
-  <div class="container">
-    <!-- THE REST OF YOUR HTML CODE GOES HERE -->
-    <h1>Log in!</h1>
-    <form action="/login" method="POST">
-      <label for="username">username </label>
-      <input type="username" id="username" name="username" required/>
-    
-      <label for="password">password</label>
-      <input type="password" id="password" name="password" required/>
-      <input type="submit"/>
-      <div>
-        <h6>
-          Don't have an account?
-          <a href="/register">Register</a>
-        </h6>
+
+<body>
+  <div class="login-wrap">
+    <div class="login-html">
+      <% if (typeof showSignUpPanel === 'undefined') { %>
+        <% var showSignUpPanel = false; %>
+        <% console.log('showSignUpPanel is undefined'); %>
+      <% } %>
+      <input id="tab-1" type="radio" name="tab" class="sign-in" <% if (!showSignUpPanel) { %>checked<% } %>><label for="tab-1" class="tab">Sign In</label>
+      <input id="tab-2" type="radio" name="tab" class="sign-up" <% if (showSignUpPanel) { %>checked<% } %>><label for="tab-2" class="tab">Sign Up</label>
+      <div class="login-form">
+        <div class="sign-in-htm">
+          <form action="/login" method="POST">
+            <div class="group">
+              <label for="signin-username" class="label">Username</label>
+              <input id="signin-username" type="text" class="input" name="username" required>
+            </div>
+            <div class="group">
+              <label for="signin-password" class="label">Password</label>
+              <input id="signin-password" type="password" class="input" data-type="password" name="password" required>
+            </div>
+            <div class="group">
+              <input id="check" type="checkbox" class="check" checked>
+              <label for="check"><span class="icon"></span> Keep me Signed in</label>
+            </div>
+            <div class="group">
+              <input type="submit" class="button" value="Sign In">
+            </div>
+            <div class="hr"></div>
+            <div class="foot-lnk">
+              <a href="#forgot">Forgot Password?</a>
+            </div>
+          </form>
+        </div>
+        <div class="sign-up-htm">
+          <form action="/register" method="POST">
+            <div class="group">
+              <label for="signup-username" class="label">Username</label>
+              <input id="signup-username" type="text" class="input" name="username" required>
+            </div>
+            <div class="group">
+              <label for="first_name" class="label">First Name</label>
+              <input id="first_name" type="text" class="input" name="first_name" required>
+            </div>
+            <div class="group">
+              <label for="last_name" class="label">Last Name</label>
+              <input id="last_name" type="text" class="input" name="last_name" required>
+            </div>
+            <div class="group">
+              <label for="signup-password" class="label">Password</label>
+              <input id="signup-password" type="password" class="input" data-type="password" name="password" required>
+            </div>
+            <div class="group">
+              <label for="email" class="label">Email Address</label>
+              <input id="email" type="text" class="input" name="email" required>
+            </div>
+            <div class="group">
+              <input type="submit" class="button" value="Register">
+            </div>
+            <div class="hr"></div>
+            <div class="foot-lnk">
+              <label for="tab-1">Already Member?</label>
+            </div>
+          </form>
+        </div>
       </div>
-    </form>
+    </div>
   </div>
-</main>
+</body>
+
+</html>
 <%- include ('../partials/footer') %>
