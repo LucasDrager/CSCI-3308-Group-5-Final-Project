@@ -63,6 +63,8 @@ const user = {
   timestamp: undefined
 };
 
+app.use("/resources", express.static('./resources/'));
+
 // *****************************************************
 // <!-- Section 4 : API Routes -->
 // *****************************************************
@@ -147,6 +149,16 @@ app.get("/settings", (req, res) => {
 //Settings POST API call
 // app.post("/settings", (req, res) => {
 //    // To be worked on soon...
+// });
+
+// Profile Page GET API call
+app.get("/profile", (req, res) => {
+  res.render("pages/profile.ejs")
+});
+
+// Profile Page POST API call
+// app.post("/profile", (req, res) => {
+//   // to be worked on
 // });
 
 // Lab 11 test call
