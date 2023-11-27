@@ -69,7 +69,9 @@ app.use(
     extended: true,
   })
 );
-//
+
+app.use("/resources", express.static('./resources/'));
+
 
 // *****************************************************
 // <!-- Section 4 : API Routes -->
@@ -133,7 +135,6 @@ app.post("/register", async (req, res) => {
         db.any(query,[req.body.username,hash])
         .then((data) => {
           res.redirect("/login")
-          //res.redirect("/login");
         })
         .catch((err) => {
           console.log(err);
@@ -144,13 +145,26 @@ app.post("/register", async (req, res) => {
   });
 });
 
-// Lab 11 test call
-app.get('/welcome', (req, res) => {
-  res.json({status: 'success', message: 'Welcome!'});
+app.get("/popup", (req, res) => {
+  const tripData = "SELECT * FROM trip WHERE ;"
+  db.any(tripData)
+  .then((data) => {
+    console.log(data);
+    res.render("pages/tripdisplay.ejs",{'Data':data});
+  })
+  .catch((err) => {
+    console.log(err);
+    res.redirect(400);
+  });
 });
 
 app.get("/homepage", (req, res) => {
   res.render("pages/homepage.ejs")
+});
+
+// Lab 11 test call
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
 });
 
 // Authentication Middleware.

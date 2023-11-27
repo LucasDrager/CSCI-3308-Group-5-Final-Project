@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS trip (
   trip_id serial PRIMARY KEY,
   driverID varchar(50) REFERENCES users(username),
   destination varchar(255),
-  original_location varchar(255)
+  original_location varchar(255),
+  active boolean
 );
 
 -- Create the passengers table

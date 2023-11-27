@@ -1,0 +1,8 @@
+<%- include ('../partials/header') %>
+<%- include('../partials/modal'); %>
+<% for(var i=0; i < Data.length; i++) { %>
+    <div id="tripButton">
+        <button type="button" class="btn btn-primary" onclick="toggle_visibility('<%=i%>','<%-Data[i].trip_id%>','<%-Data[i].driverid%>','<%-Data[i].destination%>','<%-Data[i].original_location%>');">Click me!</button>
+    </div>
+<% } %>
+<%- include ('../partials/footer') %>
