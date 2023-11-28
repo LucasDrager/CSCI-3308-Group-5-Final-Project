@@ -1,0 +1,23 @@
+<%- include('../partials/header') %> 
+<%- include('../partials/menu') %>
+<main>
+    <table class="table table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Username</th>
+                <th>Profile</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% users.forEach(user => { %>
+                <tr>
+                    <td><%= user.username %></td>
+                    <td>
+                        <a href="/users/<%= user.username %>" class="btn btn-primary">View Profile</a>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</main>
+<%- include('../partials/footer') %>
