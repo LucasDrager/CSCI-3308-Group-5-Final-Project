@@ -55,27 +55,18 @@ app.use(
   })
 );
 
-// initialize session variables
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    saveUninitialized: false,
-    resave: false,
-  })
-);
-
-app.use(
-  bodyParser.urlencoded({
-    extended: true,
-  })
-);
-
 app.use("/resources", express.static('./resources/'));
 
 
 // *****************************************************
 // <!-- Section 4 : API Routes -->
 // *****************************************************
+
+// Lab 11 test call
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
+});
+
 app.get("/", (req, res) => {
   res.redirect("/login"); //sent user to log in page
 });
@@ -122,11 +113,10 @@ app.get("/register", (req, res) => {
 
 //Register post call
 app.post("/register", async (req, res) => {
-  //hash the password using bcrypt library //{status: 200, message: 'Failure'}
   let hash;
   bcrypt.genSalt(10, function(err, salt) {
     bcrypt.hash(req.body.password, salt, function(err, passHash) {
-      hash = passHash
+      hash = passHash;
       if (err) { 
         res.redirect(400,"/register");
       } else { 
@@ -145,33 +135,69 @@ app.post("/register", async (req, res) => {
   });
 });
 
-app.get("/popup", (req, res) => {
-  const tripData = "SELECT * FROM trip WHERE ;"
-  db.any(tripData)
+app.get("/homepage", (req, res) => {
+  const tripData = `SELECT trip.trip_id,trip.driverid,trip.destination,trip.original_location 
+  FROM trip INNER JOIN passengers ON trip.trip_id = passengers.trip_id 
+  INNER JOIN users ON users.username = passengers.passenger 
+  WHERE trip.active = TRUE 
+    AND (passengers.passenger != trip.driverid) 
+    AND ((passengers.passenger = $1) OR (trip.driverid = $1));`
+  db.any(tripData,[req.session.user])
   .then((data) => {
-    console.log(data);
-    res.render("pages/tripdisplay.ejs",{'Data':data});
+    res.render("pages/homepage.ejs",{'Data':data,'User':req.session.user});
   })
   .catch((err) => {
     console.log(err);
-    res.redirect(400);
+    res.redirect("homepage");
   });
 });
 
-app.get("/homepage", (req, res) => {
-  res.render("pages/homepage.ejs")
+app.delete("/CancelUserTrip/:Trip_id", (req,res) => {
+  const deleteQuery = "DELETE FROM passengers WHERE trip_id = $1 AND passenger = $2;";
+  db.any(deleteQuery,[req.params.Trip_id,req.session.user])
+  .then((data) => {
+    console.log("Data deleteed successfully");
+  })
+  .catch((err) => {
+    console.log(err);
+    res.redirect("homepage");
+  });
 });
 
-// Lab 11 test call
-app.get('/welcome', (req, res) => {
-  res.json({status: 'success', message: 'Welcome!'});
+app.delete("/CancelUserMadeTrip/:Trip_id", (req,res) => {
+  const deleteQuery = "DELETE FROM passengers WHERE trip_id = $1; DELETE FROM trip WHERE trip_id = $1;";
+  db.any(deleteQuery,[req.params.Trip_id])
+  .then((data) => {
+    console.log("Data deleteed successfully");
+  })
+  .catch((err) => {
+    console.log(err);
+    res.redirect("homepage");
+  });
 });
 
+app.get("/getPassengers/:Trip_id", (req, res) => {
+  const passengerData = "SELECT passenger FROM passengers WHERE trip_id = $1"
+  db.any(passengerData,[req.params.Trip_id])
+  .then((data) => {
+    res.data = data
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+});
+
+app.get("/tripcreate", (req, res) => {
+  res.redirect("")
+});
+  
 // Authentication Middleware.
 const auth = (req, res, next) => {
   if (!req.session.user) {
     // Default to login page.
     return res.redirect('/login');
+  } else {
+    return res.redirect("/homepage")
   }
   next();
 };

@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS trip (
 CREATE TABLE IF NOT EXISTS passengers (
   trip_id integer,
   passenger varchar(50) REFERENCES users(username),
+  passengerNum integer,
   FOREIGN KEY (trip_id) REFERENCES trip(trip_id)
 );
 
