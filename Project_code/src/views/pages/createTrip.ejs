@@ -1,18 +1,92 @@
 <%- include ('../partials/header') %>
+
 <main>
-  <div class="container">
-    <h1>Manage Your Trips</h1>
-    <form action="/trip" method="POST">
-      <label for="destination">Destination</label>
-      <input type="text" id="destination" name="destination" required/>
-    
-      <label for="original_location">Leaving From</label>
-      <input type="text" id="original_location" name="original_location" required/>
-    
-      <input type="submit"/>
-    </form>
+  <div class="container-fluid">
+    <div class="jumbotron text-center my-5 shadow" style="background-color: grey; height: 200px;">
+      <h1 class="pt-5">Manage Trips</h1>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <h1 class="text-center my-4">Create a Trip</h1>
+        <form id="tripForm" action="/trip" method="POST" class="needs-validation" novalidate>
+          <div class="form-group pb-3">
+            <label for="destination">Destination</label>
+            <input type="text" class="form-control" id="destination" name="destination" required/>
+            <div class="invalid-feedback">Please provide a destination.</div>
+          </div>
+
+          <div class="form-group pb-3">
+            <label for="original_location">Leaving From</label>
+            <input type="text" class="form-control" id="original_location" name="original_location" required/>
+            <div class="invalid-feedback">Please provide an original location.</div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+    </div>
+    <div id="addedTripInfo" class="mt-4">
+    </div>
   </div>
-  <div id="addedTripInfo">
+  <div class="card mt-4">
+    <div class="card-body">
+      <h1 class="text-center my-4">Your Trips</h1>
+      <div id="tripList">
+        <!-- Trips will be inserted here -->
+      </div>
+    </div>
   </div>
+
 </main>
+
+<script>
+    // Fetch all trips of the current user
+    function fetchTrips() {
+        fetch('/trips')
+          .then(response => response.json())
+          .then(data => {
+            const tripList = document.getElementById('tripList');
+            tripList.innerHTML = ''; // Clear the trip list first
+            data.data.forEach(trip => {
+              const tripElement = document.createElement('div');
+              tripElement.classList.add('card', 'mb-3');
+              tripElement.innerHTML = `
+                <div class="card-body">
+                  <h5 class="card-title">${trip.destination}</h5>
+                  <p class="card-text">Starting location: ${trip.original_location}</p>
+                  <a href="/trip/${trip.trip_id}/passengers" class="btn btn-primary">View Passengers</a>
+                </div>
+              `;
+              tripList.appendChild(tripElement);
+            });
+          });
+    }
+
+    fetchTrips(); // Call the function when the page loads
+
+    // Add event listener to the form
+    document.getElementById('tripForm').addEventListener('submit', function(event) {
+      location.reload();
+    });
+
+    // Validation code if we want to validate user input later
+    (function() {
+      'use strict';
+      window.addEventListener('load', function() {
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.getElementsByClassName('needs-validation');
+        // Loop over them and prevent submission
+        var validation = Array.prototype.filter.call(forms, function(form) {
+          form.addEventListener('submit', function(event) {
+            if (form.checkValidity() === false) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+          }, false);
+        });
+      }, false);
+    })();
+</script>
+
 <%- include ('../partials/footer') %>
