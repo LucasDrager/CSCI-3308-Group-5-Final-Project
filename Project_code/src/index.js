@@ -63,11 +63,15 @@ const user = {
   timestamp: undefined
 };
 
-app.use("/resources", express.static('./resources/'));
-
 // *****************************************************
 // <!-- Section 4 : API Routes -->
 // *****************************************************
+
+// Lab 11 test call
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
+});
+
 app.get("/", (req, res) => {
   res.render("pages/login.ejs", { showSignUpPanel: false });
 });
@@ -83,6 +87,7 @@ app.post("/login", async (req, res) => {
   try {
     const usernameQuery = `SELECT password FROM users WHERE users.username = $1`;
     const data = await db.one(usernameQuery, [req.body.username]);
+    console.log(data);
     const password = data.password;
 
     const match = await bcrypt.compare(req.body.password, password);
@@ -99,7 +104,6 @@ app.post("/login", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.render("pages/login.ejs", { user, showSignUpPanel: false, error: "An error occurred. Please try again." });
-
   }
 });
 
@@ -114,18 +118,17 @@ app.get("/register", (req, res) => {
   res.render("pages/login.ejs", { showSignUpPanel: true });
 });
 
-
 //Register post call
 app.post("/register", async (req, res) => {
   //hash the password using bcrypt library
+  let hash;
   const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at) VALUES ($1, $2, $3, $4, $5, $6);";
   const values = [req.body.username.trim(), hash, req.body.first_name.trim(), req.body.last_name.trim(), req.body.email.trim(), new Date()];
-  let hash;
   bcrypt.genSalt(10, function(err, salt) {
     bcrypt.hash(req.body.password, salt, function(err, passHash) {
-      hash = passHash
+      hash = passHash;
       if (err) { 
-        res.render("pages/register.ejs")
+        res.redirect(400,"/register");
       } else { 
         console.log('fetched response');
         db.any(query,values)
@@ -134,7 +137,7 @@ app.post("/register", async (req, res) => {
         })
         .catch((err) => {
           console.log(err);
-          res.redirect("/register");
+          res.redirect(400,"/register");
         });
       }
     });
@@ -167,93 +170,68 @@ app.get('/welcome', (req, res) => {
 });
 
 app.get("/homepage", (req, res) => {
-  res.render("pages/homepage.ejs")
+  const tripData = `SELECT trip.trip_id,trip.driverid,trip.destination,trip.original_location 
+  FROM trip INNER JOIN passengers ON trip.trip_id = passengers.trip_id 
+  INNER JOIN users ON users.username = passengers.passenger 
+  WHERE trip.active = TRUE 
+    AND (passengers.passenger != trip.driverid) 
+    AND ((passengers.passenger = $1) OR (trip.driverid = $1));`
+  db.any(tripData,[req.session.user])
+  .then((data) => {
+    res.render("pages/homepage.ejs",{'Data':data,'User':req.session.user});
+  })
+  .catch((err) => {
+    console.log(err);
+    res.redirect("homepage");
+  });
 });
-// app.get('/trips', async (req, res) => {
-//   try {
-//     const trips = await db.getAllTrips();
-//     res.json(trips);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: 'Internal Server Error' });
-//   }
-// });
 
-// const getAllTrips = async () => {
-//   const result = await pool.query('SELECT * FROM trip');
-//   return result.rows;
-// };
+app.delete("/CancelUserTrip/:Trip_id", (req,res) => {
+  const deleteQuery = "DELETE FROM passengers WHERE trip_id = $1 AND passenger = $2;";
+  db.any(deleteQuery,[req.params.Trip_id,req.session.user])
+  .then((data) => {
+    console.log("Data deleteed successfully");
+  })
+  .catch((err) => {
+    console.log(err);
+    res.redirect("homepage");
+  });
+});
 
-// module.exports = {
-//   getAllTrips,
-// };
+app.delete("/CancelUserMadeTrip/:Trip_id", (req,res) => {
+  const deleteQuery = "DELETE FROM passengers WHERE trip_id = $1; DELETE FROM trip WHERE trip_id = $1;";
+  db.any(deleteQuery,[req.params.Trip_id])
+  .then((data) => {
+    console.log("Data deleteed successfully");
+  })
+  .catch((err) => {
+    console.log(err);
+    res.redirect("homepage");
+  });
+});
 
+app.get("/getPassengers/:Trip_id", (req, res) => {
+  const passengerData = "SELECT passenger FROM passengers WHERE trip_id = $1"
+  db.any(passengerData,[req.params.Trip_id])
+  .then((data) => {
+    res.data = data
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+});
 
-// document.addEventListener('DOMContentLoaded', () => {
-//     fetchAndDisplayTrips();
-//   });
-  
-//   const fetchAndDisplayTrips = async () => {
-//     try {
-//       const response = await fetch('http://localhost:3000/trips');
-//       const trips = await response.json();
-  
-//       const tripsContainer = document.getElementById('trips-container');
-//       tripsContainer.innerHTML = '';
-  
-//       trips.forEach((trip) => {
-//         const tripCard = createTripCard(trip);
-//         tripsContainer.appendChild(tripCard);
-//       });
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-  
-//   const createTripCard = (trip) => {
-//     const tripCard = document.createElement('div');
-//     tripCard.className = 'trip-card';
-  
-//     const tripTitle = document.createElement('h3');
-//     tripTitle.textContent = trip.destination;
-  
-//     const fromDate = document.createElement('p');
-//     fromDate.innerHTML = `<strong>From:</strong> ${trip.original_location}`;
-  
-//     // Add other trip details here...
-  
-//     const cancelButton = document.createElement('button');
-//     cancelButton.textContent = 'Cancel Trip';
-//     cancelButton.addEventListener('click', () => cancelTrip(trip.trip_id));
-  
-//     tripCard.appendChild(tripTitle);
-//     tripCard.appendChild(fromDate);
-//     // Add other trip details here...
-  
-//     tripCard.appendChild(cancelButton);
-  
-//     return tripCard;
-//   };
-  
-//   const cancelTrip = async (tripId) => {
-//     try {
-//       // Implement cancel trip logic here...
-//       console.log(`Cancel trip with ID ${tripId}`);
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-  
-//   const searchTrip = () => {
-//     // Implement search trip logic here...
-//     console.log('Search for a trip');
-//   };
+app.get("/tripcreate", (req, res) => {
+  res.redirect("")
+});
   
 // Authentication Middleware.
 const auth = (req, res, next) => {
   if (!req.session.user) {
     // Default to login page.
     return res.redirect('/login');
+  } else {
+    return res.redirect("/homepage")
   }
   next();
 };
@@ -311,7 +289,6 @@ app.post("/trip/:trip_id/passenger", (req, res) => {
 
 // Authentication Required
 app.use(auth);
-
   
 // *****************************************************
 // <!-- Section 5 : Start Server-->
