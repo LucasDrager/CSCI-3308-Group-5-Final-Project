@@ -48,85 +48,118 @@ app.use(
     resave: false,
   })
 );
+app.use('/resources', express.static('resources'));
 
 app.use(
   bodyParser.urlencoded({
     extended: true,
   })
 );
+const user = {
+  username: undefined,
+  first_name: undefined,
+  last_name: undefined,
+  email: undefined,
+  timestamp: undefined
+};
+
+app.use("/resources", express.static('./resources/'));
 
 // *****************************************************
 // <!-- Section 4 : API Routes -->
 // *****************************************************
 app.get("/", (req, res) => {
-  res.redirect("/login"); //sent user to log in page
+  res.render("pages/login.ejs", { showSignUpPanel: false });
 });
+
 
 //Login Get call
 app.get("/login", (req,res) => {
-  res.render("pages/login.ejs")
+  res.render("pages/login.ejs", { showSignUpPanel: false });
 });
 
 //Login post call
-app.post("/login", async (req,res) => {
-  usernameQuery = `SELECT password FROM users WHERE users.username = $1`
-  var password = ""
-  await db.one(usernameQuery,[req.body.username])
-  .then((data) => {
-    password = data.password
-  })
-  .catch((err) => {
-    console.log(err)
-    res.redirect("/login");
-  });
-  const match = await bcrypt.compare(req.body.password, password);
-  console.log(match)
-  //save user details in session like in lab 8
-  if(match == false){ 
-    console.log('error');
-  } else {
-    req.session.user = req.body.username;
-    req.session.save();
-    res.redirect("/homepage");
+app.post("/login", async (req, res) => {
+  try {
+    const usernameQuery = `SELECT password FROM users WHERE users.username = $1`;
+    const data = await db.one(usernameQuery, [req.body.username]);
+    const password = data.password;
+
+    const match = await bcrypt.compare(req.body.password, password);
+
+    if (match) {
+      // Authentication successful
+      req.session.user = req.body.username;
+      req.session.save();
+      res.redirect("/homepage"); 
+    } else {
+      // Authentication failed
+      res.render("pages/login.ejs", { user, showSignUpPanel: false, error: "Invalid username or password" });
+    }
+  } catch (err) {
+    console.error(err);
+    res.render("pages/login.ejs", { user, showSignUpPanel: false, error: "An error occurred. Please try again." });
+
   }
 });
 
 //log out get call
 app.get("/logout", (req, res) => {
   req.session.destroy();
-  res.render("pages/login.ejs");
+  res.render("pages/login.ejs", { showSignUpPanel: false });
 });
 
 //Register get call
 app.get("/register", (req, res) => {
-  res.render("pages/register.ejs")
+  res.render("pages/login.ejs", { showSignUpPanel: true });
 });
+
 
 //Register post call
 app.post("/register", async (req, res) => {
-  //hash the password using bcrypt library //{status: 200, message: 'Failure'}
+  //hash the password using bcrypt library
+  const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at) VALUES ($1, $2, $3, $4, $5, $6);";
+  const values = [req.body.username.trim(), hash, req.body.first_name.trim(), req.body.last_name.trim(), req.body.email.trim(), new Date()];
   let hash;
   bcrypt.genSalt(10, function(err, salt) {
     bcrypt.hash(req.body.password, salt, function(err, passHash) {
       hash = passHash
       if (err) { 
-        res.redirect(400,"/register");
+        res.render("pages/register.ejs")
       } else { 
         console.log('fetched response');
-        const query = "INSERT INTO users (username, password) VALUES ($1,$2);";
-        db.any(query,[req.body.username,hash])
+        db.any(query,values)
         .then((data) => {
-          res.redirect("/login")
-          //res.redirect("/login");
+          res.redirect("/login");
         })
         .catch((err) => {
           console.log(err);
-          res.redirect(400,"/register");
+          res.redirect("/register");
         });
       }
     });
   });
 });
+
+// Settings GET API call
+app.get("/settings", (req, res) => {
+  res.render("pages/settings.ejs")
+});
+
+//Settings POST API call
+// app.post("/settings", (req, res) => {
+//    // To be worked on soon...
+// });
+
+// Profile Page GET API call
+app.get("/profile", (req, res) => {
+  res.render("pages/profile.ejs")
+});
+
+// Profile Page POST API call
+// app.post("/profile", (req, res) => {
+//   // to be worked on
+// });
 
 // Lab 11 test call
 app.get('/welcome', (req, res) => {
@@ -136,7 +169,6 @@ app.get('/welcome', (req, res) => {
 app.get("/homepage", (req, res) => {
   res.render("pages/homepage.ejs")
 });
-
 // app.get('/trips', async (req, res) => {
 //   try {
 //     const trips = await db.getAllTrips();
@@ -225,6 +257,57 @@ const auth = (req, res, next) => {
   }
   next();
 };
+
+//Go to createTrip page
+app.get("/createTrip", (req, res) => {
+  res.render("pages/createTrip.ejs")
+});
+
+//Create a trip:
+
+app.post("/trip", (req, res) => {
+  const query = "INSERT INTO trip (driverID, destination, original_location) VALUES ($1, $2, $3);";
+  //REMOVE COMMENT. Attempt to use both session variable and variable from page.
+  db.none(query, [req.session.user, req.body.destination, req.body.original_location])
+    .then(() => {
+      // res.json({ status: 'success', message: 'Trip created successfully' });
+      console.log('Trip created successfully');
+    })
+    .catch(err => {
+      console.log(err);
+      // res.json({ status: 'error', message: 'Failed to update trip' });
+    });
+});
+
+//Edit trip details:
+
+app.put("/trip/:trip_id", (req, res) => {
+  const query = "UPDATE trip SET driverID = $1, destination = $2, original_location = $3 WHERE trip_id = $4;";
+  db.none(query, [req.session.user, req.body.destination, req.body.original_location, req.params.trip_id])
+    .then(() => {
+      // res.json({ status: 'success', message: 'Trip updated successfully' });
+      console.log('Trip updated successfully');
+    })
+    .catch(err => {
+      console.log(err);
+      // res.json({ status: 'error', message: 'Failed to update trip' });
+    });
+});
+
+
+//Add passengers to trip:
+
+app.post("/trip/:trip_id/passenger", (req, res) => {
+  const query = "INSERT INTO passengers (trip_id, passenger) VALUES ($1, $2);";
+  db.none(query, [req.params.trip_id, req.body.passenger])
+    .then(() => {
+      res.json({ status: 'success', message: 'Passenger added successfully' });
+    })
+    .catch(err => {
+      console.log(err);
+      res.json({ status: 'error', message: 'Failed to add passenger' });
+    });
+});
 
 // Authentication Required
 app.use(auth);
