@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS users (
   first_name varchar(50),
   last_name varchar(50),
   email varchar(50),
-  created_at timestamp
+  created_at timestamp,
+  venmo_id varchar(50)
 );
 
 -- Create the friends table

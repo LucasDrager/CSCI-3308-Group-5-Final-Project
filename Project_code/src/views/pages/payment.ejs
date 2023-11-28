@@ -1,0 +1,73 @@
+<!-- Your HTML file -->
+<%- include ('../partials/header') %>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make Payment</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="../../resources/css/payment.css" />
+</head>
+<body>
+    <h1>Make Payment</h1>
+    <% if (trips && trips.length > 0) { %>
+        <form id="paymentForm">
+            <label for="tripSelect">Select Trip:</label>
+            <select id="tripSelect" name="tripId" required>
+                <% trips.forEach(trip => { %>
+                    <option value="<%= trip.trip_id %>" data-venmo-id="<%= trip.driver_venmo_id %>">
+                        Trip ID: <%= trip.trip_id %>, Driver: <%= trip.driverID %>, Destination: <%= trip.destination %>
+                    </option>
+                <% }); %>
+            </select>
+            
+            <label for="recipientId">Recipient ID:</label>
+            <input type="text" id="recipientId" name="recipientId" required>
+            
+            <label for="amount">Amount:</label>
+            <input type="number" id="amount" name="amount" step="0.01" required>
+            
+            <label for="note">Note:</label>
+            <input type="text" id="note" name="note">
+            
+            <button type="button" onclick="makePayment()">Make Payment</button>
+        </form>
+    <% } else { %>
+        <p>No trips available for payment.</p>
+    <% } %>
+    
+    <script>
+        function makePayment() {
+            const tripSelect = document.getElementById('tripSelect');
+            const recipientIdInput = document.getElementById('recipientId');
+            const selectedOption = tripSelect.options[tripSelect.selectedIndex];
+            const recipientId = selectedOption.getAttribute('data-venmo-id');
+
+            recipientIdInput.value = recipientId;
+
+            // Update the href attribute of the button
+            const paymentButton = document.querySelector('button');
+            paymentButton.href = `https://account.venmo.com/pay?recipients=${recipientId}`;
+
+            // Optionally, you can submit the form programmatically
+            // document.getElementById('paymentForm').submit();
+        }
+        
+        // Trigger the makePayment function when the page loads (if needed)
+        // window.onload = makePayment;
+    </script>
+</body>
+
+<%- include ('../partials/footer') %>
+
+
+
+
+
+
+
+
+
+
+

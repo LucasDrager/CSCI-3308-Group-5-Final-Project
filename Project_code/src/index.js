@@ -66,15 +66,22 @@ const user = {
 // *****************************************************
 // <!-- Section 4 : API Routes -->
 // *****************************************************
+
 app.get("/", (req, res) => {
-  res.render("pages/login.ejs", { showSignUpPanel: false });
+  res.render("pages/login", { showSignUpPanel: false });
 });
 
 
 //Login Get call
 app.get("/login", (req,res) => {
-  res.render("pages/login.ejs", { showSignUpPanel: false });
+  res.render("pages/login", { showSignUpPanel: false });
 });
+
+//Login Get call
+app.get("/register", (req,res) => {
+  res.render("pages/login", { showSignUpPanel: true });
+});
+
 
 //Login post call
 app.post("/login", async (req, res) => {
@@ -92,11 +99,11 @@ app.post("/login", async (req, res) => {
       res.redirect("/homepage"); 
     } else {
       // Authentication failed
-      res.render("pages/login.ejs", { user, showSignUpPanel: false, error: "Invalid username or password" });
+      res.render("pages/login", { user, showSignUpPanel: false, error: "Invalid username or password" });
     }
   } catch (err) {
     console.error(err);
-    res.render("pages/login.ejs", { user, showSignUpPanel: false, error: "An error occurred. Please try again." });
+    res.render("pages/login", { user, showSignUpPanel: false, error: "An error occurred. Please try again." });
 
   }
 });
@@ -104,40 +111,38 @@ app.post("/login", async (req, res) => {
 //log out get call
 app.get("/logout", (req, res) => {
   req.session.destroy();
-  res.render("pages/login.ejs", { showSignUpPanel: false });
+  res.render("pages/login", { showSignUpPanel: false });
 });
 
-//Register get call
-app.get("/register", (req, res) => {
-  res.render("pages/login.ejs", { showSignUpPanel: true });
-});
 
 
 //Register post call
 app.post("/register", async (req, res) => {
-  //hash the password using bcrypt library
-  const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at) VALUES ($1, $2, $3, $4, $5, $6);";
-  const values = [req.body.username.trim(), hash, req.body.first_name.trim(), req.body.last_name.trim(), req.body.email.trim(), new Date()];
   let hash;
+
   bcrypt.genSalt(10, function(err, salt) {
     bcrypt.hash(req.body.password, salt, function(err, passHash) {
-      hash = passHash
-      if (err) { 
-        res.render("pages/register.ejs")
-      } else { 
-        console.log('fetched response');
-        db.any(query,values)
-        .then((data) => {
-          res.redirect("/login");
-        })
-        .catch((err) => {
-          console.log(err);
-          res.redirect("/register");
-        });
+      hash = passHash;
+
+      const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at, venmo_id) VALUES ($1, $2, $3, $4, $5, $6, $7);";
+      const values = [req.body.username.trim(), hash, req.body.first_name.trim(), req.body.last_name.trim(), req.body.email.trim(), new Date(), req.body.venmo_id.trim()];
+
+      if (err) {
+        res.render("pages/login", { showSignUpPanel: true });
+      } else {
+        db.any(query, values)
+          .then((data) => {
+            res.redirect("/login");
+          })
+          .catch((err) => {
+            console.log(err);
+            res.render("pages/login", { showSignUpPanel: false });
+          });
       }
     });
   });
 });
+
 
 // Settings GET API call
 app.get("/settings", (req, res) => {
@@ -288,6 +293,118 @@ app.post("/trip/:trip_id/passenger", (req, res) => {
       res.json({ status: 'error', message: 'Failed to add passenger' });
     });
 });
+
+
+app.get("/payments", async (req, res) => {
+  const username = req.session.user; // Use req.session.user instead of req.body.user
+  if(username == undefined){
+    res.render("pages/login", {showSignUpPanel: false, message: "You must login first!"});
+    return;
+  }
+
+
+  const query = `
+    SELECT DISTINCT t.trip_id, t.driverID, t.destination, t.original_location
+    FROM trip t
+    INNER JOIN passengers p ON t.trip_id = p.trip_id
+    WHERE p.passenger = $1;
+  `;
+
+  try {
+    const data1 = await db.any(query, username);
+
+    // Extract unique driver IDs
+    const uniqueDrivers = [...new Set(data1.map(item => item.driverID))];
+    console.log("Unique Drivers:", uniqueDrivers);
+
+    // Create placeholders for the IN clause
+    if (uniqueDrivers.length === 0) {
+      throw new Error('uniqueDrivers is empty');
+    }
+    
+    const placeholders = uniqueDrivers.map((_, index) => `$${index + 1}`).join(',');
+    const query2 = `SELECT * FROM users WHERE username IN (${placeholders})`;
+    const params2 = uniqueDrivers;
+    
+    const data2 = await db.any(query2, params2);
+
+    // Combine data from both queries
+    const combinedData = {
+      trips: data1,
+      driverInfo: data2,
+    };
+
+    res.render("pages/payment.ejs", combinedData);
+  } catch (error) {
+    console.error(error);
+
+    // Provide default data in case of an error
+    const combinedData = {
+      trips: {},
+      driverInfo: {},
+    };
+
+    res.render("pages/payment.ejs", combinedData);
+  }
+});
+
+
+
+
+
+
+
+
+
+// app.post('/make-payment', async (req, res) => {
+//   const { recipientId, amount, note } = req.body;
+
+//   try {
+//       // Simulating authentication and obtaining an access token
+//       const accessToken = 'your_venmo_access_token';
+
+//       // Simulating making a payment using the Venmo API
+//       const venmoResponse = await axios.post('https://api.venmo.com/v1/payments', {
+//           user_id: recipientId,
+//           amount,
+//           note,
+//       }, {
+//           headers: {
+//               'Authorization': `Bearer ${accessToken}`
+//           }
+//       });
+
+//       // Handle the response from the Venmo API
+//       if (venmoResponse.data && venmoResponse.data.status === 'success') {
+//           // Payment successful, proceed with inserting into the transactions table
+//           const transactionQuery = `
+//               INSERT INTO transactions (sender_id, receiver_id, amount, description, transaction_date)
+//               VALUES ($1, $2, $3, $4, $5)
+//               RETURNING transaction_id;`;
+
+//           const transactionValues = ['sender_id_placeholder', recipientId, amount, note, new Date()];
+
+//           // Assuming db object is configured for PostgreSQL with pg-promise
+//           const transactionResult = await db.one(transactionQuery, transactionValues);
+
+//           // You can access the transaction ID from transactionResult.transaction_id
+
+//           res.json({ status: 'success', message: 'Payment successful!' });
+//       } else {
+//           // Payment failed
+//           res.status(500).json({ status: 'error', message: 'Payment failed.' });
+//       }
+//   } catch (error) {
+//       // Handle errors and send an appropriate response
+//       console.error(error.message);
+//       res.status(500).json({ status: 'error', message: 'Payment failed.' });
+//   }
+// });
+
+
+
+
+
 
 // Authentication Required
 app.use(auth);

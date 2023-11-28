@@ -2,7 +2,13 @@
 
 <body>
   <div class="login-wrap">
+
     <div class="login-html">
+      <% if (typeof message !== 'undefined' && message !== null) { %>
+        <div class="error-message">
+          <%= message %>
+        </div>
+      <% } %>
       <% if (typeof showSignUpPanel === 'undefined') { %>
         <% var showSignUpPanel = false; %>
         <% console.log('showSignUpPanel is undefined'); %>
@@ -10,6 +16,7 @@
       <input id="tab-1" type="radio" name="tab" class="sign-in" <% if (!showSignUpPanel) { %>checked<% } %>><label for="tab-1" class="tab">Sign In</label>
       <input id="tab-2" type="radio" name="tab" class="sign-up" <% if (showSignUpPanel) { %>checked<% } %>><label for="tab-2" class="tab">Sign Up</label>
       <div class="login-form">
+
         <div class="sign-in-htm">
           <form action="/login" method="POST">
             <div class="group">
@@ -54,6 +61,10 @@
             <div class="group">
               <label for="email" class="label">Email Address</label>
               <input id="email" type="text" class="input" name="email" required>
+            </div>
+            <div class="group">
+              <label for="venmo_id" class="label">Venmo username</label>
+              <input id="venmo_id" type="text" class="input" name="venmo_id" required>
             </div>
             <div class="group">
               <input type="submit" class="button" value="Register">
