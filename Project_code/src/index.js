@@ -123,7 +123,7 @@ app.post("/register", async (req, res) => {
   //hash the password using bcrypt library
   let hash;
   const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at) VALUES ($1, $2, $3, $4, $5, $6);";
-  const values = [req.body.username.trim(), hash, req.body.first_name.trim(), req.body.last_name.trim(), req.body.email.trim(), new Date()];
+  const values = [req.body.username, hash, req.body.first_name.trim(), req.body.last_name.trim(), req.body.email.trim(), new Date()];
   bcrypt.genSalt(10, function(err, salt) {
     bcrypt.hash(req.body.password, salt, function(err, passHash) {
       hash = passHash;
