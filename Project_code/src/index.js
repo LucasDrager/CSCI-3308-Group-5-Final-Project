@@ -13,6 +13,18 @@ const bcrypt = require('bcrypt'); //  To hash passwords
 // <!-- Section 2 : Connect to DB -->
 // *****************************************************
 
+
+
+const { JSDOM } = require("jsdom");
+
+// Create a virtual DOM
+const dom = new JSDOM();
+
+// Extract the document object
+const document = dom.window.document;
+
+
+
 // database configuration
 const dbConfig = {
   host: 'db', // the database server
@@ -66,15 +78,42 @@ const user = {
 // *****************************************************
 // <!-- Section 4 : API Routes -->
 // *****************************************************
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM is fully loaded');
+
+  // Select all elements in the DOM
+  var allElements = document.querySelectorAll('*');
+  console.log('Total number of elements:', allElements.length);
+  console.log('All elements:', allElements);
+  
+  // Iterate through the elements and log their IDs
+  allElements.forEach(function(element) {
+    console.log(element.id);
+  });
+
+  // document.getElementById("messagingLink").addEventListener("click", function (event) {
+  //   event.preventDefault(); 
+  //   window.location.href = "/messaging/:user_id"; 
+  //   console.log("happening");
+  // });
+
+});
+
 app.get("/", (req, res) => {
-  res.render("pages/login.ejs", { showSignUpPanel: false });
+  res.render("pages/login", { showSignUpPanel: false });
 });
 
 
 //Login Get call
 app.get("/login", (req,res) => {
-  res.render("pages/login.ejs", { showSignUpPanel: false });
+  res.render("pages/login", { showSignUpPanel: false });
 });
+
+//Login Get call
+app.get("/register", (req,res) => {
+  res.render("pages/login", { showSignUpPanel: true });
+});
+
 
 //Login post call
 app.post("/login", async (req, res) => {
@@ -92,11 +131,11 @@ app.post("/login", async (req, res) => {
       res.redirect("/homepage"); 
     } else {
       // Authentication failed
-      res.render("pages/login.ejs", { user, showSignUpPanel: false, error: "Invalid username or password" });
+      res.render("pages/login", { user, showSignUpPanel: false, error: "Invalid username or password" });
     }
   } catch (err) {
     console.error(err);
-    res.render("pages/login.ejs", { user, showSignUpPanel: false, error: "An error occurred. Please try again." });
+    res.render("pages/login", { user, showSignUpPanel: false, error: "An error occurred. Please try again." });
 
   }
 });
@@ -104,40 +143,38 @@ app.post("/login", async (req, res) => {
 //log out get call
 app.get("/logout", (req, res) => {
   req.session.destroy();
-  res.render("pages/login.ejs", { showSignUpPanel: false });
+  res.render("pages/login", { showSignUpPanel: false });
 });
 
-//Register get call
-app.get("/register", (req, res) => {
-  res.render("pages/login.ejs", { showSignUpPanel: true });
-});
 
 
 //Register post call
 app.post("/register", async (req, res) => {
-  //hash the password using bcrypt library
-  const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at) VALUES ($1, $2, $3, $4, $5, $6);";
-  const values = [req.body.username.trim(), hash, req.body.first_name.trim(), req.body.last_name.trim(), req.body.email.trim(), new Date()];
   let hash;
+
   bcrypt.genSalt(10, function(err, salt) {
     bcrypt.hash(req.body.password, salt, function(err, passHash) {
-      hash = passHash
-      if (err) { 
-        res.render("pages/register.ejs")
-      } else { 
-        console.log('fetched response');
-        db.any(query,values)
-        .then((data) => {
-          res.redirect("/login");
-        })
-        .catch((err) => {
-          console.log(err);
-          res.redirect("/register");
-        });
+      hash = passHash;
+
+      const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at) VALUES ($1, $2, $3, $4, $5, $6);";
+      const values = [req.body.username.trim(), hash, req.body.first_name.trim(), req.body.last_name.trim(), req.body.email.trim(), new Date()];
+
+      if (err) {
+        res.render("pages/login", { showSignUpPanel: true });
+      } else {
+        db.any(query, values)
+          .then((data) => {
+            res.redirect("/login");
+          })
+          .catch((err) => {
+            console.log(err);
+            res.render("pages/login", { showSignUpPanel: false });
+          });
       }
     });
   });
 });
+
 
 // Settings GET API call
 app.get("/settings", (req, res) => {
@@ -288,6 +325,83 @@ app.post("/trip/:trip_id/passenger", (req, res) => {
       res.json({ status: 'error', message: 'Failed to add passenger' });
     });
 });
+
+app.get("/messaging", (req,res) =>{
+  res.redirect(`/messaging/${req.session.user}`);
+});
+
+
+app.get("/get_messages/:conversation_id", (req, res) => {
+  const conversationId = req.params.conversation_id;
+
+  const query = "SELECT * FROM messaging WHERE conversation_id = $1;";
+  db.manyOrNone(query, [conversationId])
+    .then((messages) => {
+      res.json({ status: 'success', messages: messages || [] });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json({ status: 'error', message: 'Failed to retrieve messages' });
+    });
+});
+
+app.get("/messaging/:user_id", (req, res) => {
+  const userId = req.session.user;
+
+  const query = "SELECT * FROM conversations WHERE $1 = ANY(participants);";
+  db.manyOrNone(query, [userId])
+    .then((conversations) => {
+      res.json({ status: 'success', conversations: conversations || [] });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json({ status: 'error', message: 'Failed to retrieve conversations' });
+    });
+});
+
+app.post("/create_conversation", (req, res) => {
+  const participants = [req.session.user, req.body.receiver_id];
+  
+  const conversationCheckQuery = "SELECT conversation_id FROM conversations WHERE participants = $1;";
+  db.oneOrNone(conversationCheckQuery, [participants])
+    .then((existingConversation) => {
+      if (existingConversation) {
+        res.json({ status: 'success', message: 'Conversation already exists', conversation_id: existingConversation.conversation_id });
+      } else {
+        const insertConversationQuery = "INSERT INTO conversations (participants) VALUES ($1) RETURNING conversation_id;";
+        return db.one(insertConversationQuery, [participants]);
+      }
+    })
+    .then((result) => {
+      const conversationId = result.conversation_id;
+
+
+      res.json({ status: 'success', message: 'Conversation created successfully', conversation_id: conversationId });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json({ status: 'error', message: 'Failed to create conversation' });
+    });
+});
+
+app.post("/send_message/:conversation_id", (req, res) => {
+  const conversationId = req.params.conversation_id;
+  const { sender_id, message_text } = req.body;
+
+  const insertMessageQuery = "INSERT INTO messaging (conversation_id, sender_id, message_text) VALUES ($1, $2, $3) RETURNING message_id;";
+  db.one(insertMessageQuery, [conversationId, sender_id, message_text])
+    .then((result) => {
+      const messageId = result.message_id;
+
+      res.json({ status: 'success', message: 'Message sent successfully', message_id: messageId });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json({ status: 'error', message: 'Failed to send message' });
+    });
+});
+
+
 
 // Authentication Required
 app.use(auth);

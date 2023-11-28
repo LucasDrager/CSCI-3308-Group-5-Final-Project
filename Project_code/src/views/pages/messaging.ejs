@@ -1,0 +1,33 @@
+<%- include ('../partials/header') %>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messaging Board</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <div id="conversations" class="conversations-container">
+      <!-- Conversations list goes here -->
+      <% messages._embedded.events.slice(0, numitems).forEach(event => { %>
+        <!-- Render your conversation item using event data -->
+        <div id="conv-item" class="conversation-item">
+          <!-- Display event information here -->
+        </div>
+      <% }); %>
+    </div>
+    <div id="selectedConversation" class="selected-conversation-container">
+      <!-- Selected conversation goes here -->
+    </div>
+    <div id="resizer" class="resizer"></div>
+  </div>
+
+  <!-- Place the footer inclusion where it is intended -->
+  <%- include ('../partials/footer') %>
+
+  <script src="scripts.js"></script>
+</body>
+
+</html>

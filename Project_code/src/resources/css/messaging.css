@@ -1,0 +1,84 @@
+/* styles.css
+body, html {
+    height: 100%;
+    margin: 0;
+  }
+  
+  .container {
+    display: flex;
+    height: 100%;
+  }
+  
+  .conversations-container {
+    flex: 1;
+    overflow-y: auto;
+    border-right: 1px solid #ccc;
+  }
+  
+  .selected-conversation-container {
+    flex: 3;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  
+  .resizer {
+    width: 10px;
+    cursor: ew-resize;
+    background-color: #ccc;
+    border-left: 2px solid #fff;
+    border-right: 2px solid #fff;
+    z-index: 1;
+  }
+   */
+   /* Reset some default styles */
+body,
+h1,
+h2,
+p,
+ul,
+li {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.conversations-container {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.conversation-item {
+  border-bottom: 1px solid #eee;
+  padding: 10px;
+}
+
+.selected-conversation-container {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.resizer {
+  height: 10px;
+  background-color: #eee;
+  cursor: ns-resize;
+}
+
+/* Add your specific styles for event information here */
+
+/* Responsive styles */
+@media (max-width: 600px) {
+  .container {
+    padding: 10px;
+  }
+}

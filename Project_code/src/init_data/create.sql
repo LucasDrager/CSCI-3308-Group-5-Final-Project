@@ -31,9 +31,16 @@ CREATE TABLE IF NOT EXISTS passengers (
   FOREIGN KEY (trip_id) REFERENCES trip(trip_id)
 );
 
+-- Create the conversations table
+CREATE TABLE IF NOT EXISTS conversations (
+  conversation_id bigserial PRIMARY KEY,
+  participants varchar(50)[]
+);
+
 -- Create the messaging table
 CREATE TABLE IF NOT EXISTS messaging (
-  message_id serial PRIMARY KEY,
+  message_id bigserial PRIMARY KEY,
+  conversation_id bigint REFERENCES conversations(conversation_id),
   sender_id varchar(50) REFERENCES users(username),
   receiver_id varchar(50) REFERENCES users(username),
   message_text text,
