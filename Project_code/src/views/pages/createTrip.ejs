@@ -64,13 +64,10 @@
 
     fetchTrips(); // Call the function when the page loads
 
-    // // Handle form submission
-    // document.getElementById('tripForm').addEventListener('submit', function(event) {
-    //     event.preventDefault();
-    //     // Do the form submission here
-    //     // After the trip is created, call fetchTrips() again to update the list of trips
-    //     fetchTrips();
-    // });
+    // Add event listener to the form
+    document.getElementById('tripForm').addEventListener('submit', function(event) {
+      location.reload();
+    });
 
     // Validation code if we want to validate user input later
     (function() {
