@@ -276,6 +276,45 @@ app.post("/trip/:trip_id/passenger", (req, res) => {
     });
 });
 
+// Get all trips of the logged in user
+
+app.get("/trips", async (req, res) => {
+  const query = "SELECT * FROM trip WHERE driverID = $1;";
+  try {
+    const trips = await db.any(query, [req.session.user]);
+    res.json({ status: 'success', data: trips });
+  } catch (err) {
+    console.log(err);
+    res.json({ status: 'error', message: 'Failed to fetch trips' });
+  }
+});
+
+// Get all passengers of a specific trip
+
+app.get("/trip/:trip_id/passengers", async (req, res) => {
+  const query = "SELECT * FROM passengers WHERE trip_id = $1;";
+  try {
+    const passengers = await db.any(query, [req.params.trip_id]);
+    res.json({ status: 'success', data: passengers });
+  } catch (err) {
+    console.log(err);
+    res.json({ status: 'error', message: 'Failed to fetch passengers' });
+  }
+});
+
+// Delete a trip
+
+app.delete("/trip/:trip_id", async (req, res) => {
+  const query = "DELETE FROM trip WHERE trip_id = $1 AND driverID = $2;";
+  try {
+    await db.none(query, [req.params.trip_id, req.session.user]);
+    res.json({ status: 'success', message: 'Trip deleted successfully' });
+  } catch (err) {
+    console.log(err);
+    res.json({ status: 'error', message: 'Failed to delete trip' });
+  }
+});
+
 // Authentication Required
 app.use(auth);
 
