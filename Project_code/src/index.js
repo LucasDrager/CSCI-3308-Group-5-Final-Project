@@ -55,13 +55,6 @@ app.use(
     extended: true,
   })
 );
-const user = {
-  username: undefined,
-  first_name: undefined,
-  last_name: undefined,
-  email: undefined,
-  timestamp: undefined
-};
 
 // *****************************************************
 // <!-- Section 4 : API Routes -->
@@ -103,6 +96,10 @@ app.post("/login", async (req, res) => {
     if (match) {
       // Authentication successful
       req.session.user = req.body.username;
+      req.session.first_name = req.body.first_name;
+      req.session.last_name = req.body.last_name;
+      req.session.email = req.body.email;
+
       req.session.save();
       res.redirect("/homepage"); 
     } else {
