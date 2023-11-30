@@ -71,23 +71,27 @@ const user = {
 app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
-
 app.get("/", (req, res) => {
-  res.render("pages/login.ejs", { showSignUpPanel: false });
+  res.render("pages/login", { showSignUpPanel: false });
 });
 
 
 //Login Get call
 app.get("/login", (req,res) => {
-  res.render("pages/login.ejs", { showSignUpPanel: false });
+  res.render("pages/login", { showSignUpPanel: false });
 });
+
+//Login Get call
+app.get("/register", (req,res) => {
+  res.render("pages/login", { showSignUpPanel: true });
+});
+
 
 //Login post call
 app.post("/login", async (req, res) => {
   try {
     const usernameQuery = `SELECT password FROM users WHERE users.username = $1`;
     const data = await db.one(usernameQuery, [req.body.username]);
-    console.log(data);
     const password = data.password;
 
     const match = await bcrypt.compare(req.body.password, password);
@@ -99,46 +103,43 @@ app.post("/login", async (req, res) => {
       res.redirect("/homepage"); 
     } else {
       // Authentication failed
-      res.render("pages/login.ejs", { user, showSignUpPanel: false, error: "Invalid username or password" });
+      res.render("pages/login", { user, showSignUpPanel: false, error: "Invalid username or password" });
     }
   } catch (err) {
     console.error(err);
-    res.render("pages/login.ejs", { user, showSignUpPanel: false, error: "An error occurred. Please try again." });
+    res.render("pages/login", { user, showSignUpPanel: false, error: "An error occurred. Please try again." });
+
   }
 });
 
 //log out get call
 app.get("/logout", (req, res) => {
   req.session.destroy();
-  res.render("pages/login.ejs", { showSignUpPanel: false });
-});
-
-//Register get call
-app.get("/register", (req, res) => {
-  res.render("pages/login.ejs", { showSignUpPanel: true });
+  res.render("pages/login", { showSignUpPanel: false });
 });
 
 //Register post call
 app.post("/register", async (req, res) => {
-  //hash the password using bcrypt library
   let hash;
-  const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at) VALUES ($1, $2, $3, $4, $5, $6);";
-  const values = [req.body.username, hash, req.body.first_name.trim(), req.body.last_name.trim(), req.body.email.trim(), new Date()];
+
   bcrypt.genSalt(10, function(err, salt) {
     bcrypt.hash(req.body.password, salt, function(err, passHash) {
       hash = passHash;
-      if (err) { 
-        res.redirect(400,"/register");
-      } else { 
-        console.log('fetched response');
-        db.any(query,values)
-        .then((data) => {
-          res.redirect("/login");
-        })
-        .catch((err) => {
-          console.log(err);
-          res.redirect(400,"/register");
-        });
+
+      const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at, venmo_id) VALUES ($1, $2, $3, $4, $5, $6);";
+      const values = [req.body.username, hash, req.body.first_name, req.body.last_name, req.body.email, new Date()];
+
+      if (err) {
+        res.render("pages/login", { showSignUpPanel: true });
+      } else {
+        db.any(query, values)
+          .then((data) => {
+            res.redirect("/login");
+          })
+          .catch((err) => {
+            console.log(err);
+            res.render("pages/login", { showSignUpPanel: false});
+          });
       }
     });
   });
