@@ -112,10 +112,16 @@ app.post("/login", async (req, res) => {
   }
 });
 
+
 //log out get call
 app.get("/logout", (req, res) => {
   req.session.destroy();
-  res.render("pages/login", { showSignUpPanel: false });
+  res.render("pages/login.ejs", { showSignUpPanel: false });
+});
+
+//Register get call
+app.get("/register", (req, res) => {
+  res.render("pages/login.ejs", { showSignUpPanel: true });
 });
 
 //Register post call
@@ -126,7 +132,7 @@ app.post("/register", async (req, res) => {
     bcrypt.hash(req.body.password, salt, function(err, passHash) {
       hash = passHash;
 
-      const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at, venmo_id) VALUES ($1, $2, $3, $4, $5, $6);";
+      const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at) VALUES ($1, $2, $3, $4, $5, $6);";
       const values = [req.body.username, hash, req.body.first_name, req.body.last_name, req.body.email, new Date()];
 
       if (err) {
@@ -138,7 +144,7 @@ app.post("/register", async (req, res) => {
           })
           .catch((err) => {
             console.log(err);
-            res.render("pages/login", { showSignUpPanel: false});
+            res.render("pages/login", { showSignUpPanel: false });
           });
       }
     });
@@ -147,23 +153,13 @@ app.post("/register", async (req, res) => {
 
 // Settings GET API call
 app.get("/settings", (req, res) => {
-  res.render("pages/settings.ejs")
+  res.render("pages/settings")
 });
-
-//Settings POST API call
-// app.post("/settings", (req, res) => {
-//    // To be worked on soon...
-// });
 
 // Profile Page GET API call
 app.get("/profile", (req, res) => {
-  res.render("pages/profile.ejs")
+  res.render("pages/profile")
 });
-
-// Profile Page POST API call
-// app.post("/profile", (req, res) => {
-//   // to be worked on
-// });
 
 // Lab 11 test call
 app.get('/welcome', (req, res) => {
@@ -286,6 +282,45 @@ app.post("/trip/:trip_id/passenger", (req, res) => {
       console.log(err);
       res.json({ status: 'error', message: 'Failed to add passenger' });
     });
+});
+
+// Get all trips of the logged in user
+
+app.get("/trips", async (req, res) => {
+  const query = "SELECT * FROM trip WHERE driverID = $1;";
+  try {
+    const trips = await db.any(query, [req.session.user]);
+    res.json({ status: 'success', data: trips });
+  } catch (err) {
+    console.log(err);
+    res.json({ status: 'error', message: 'Failed to fetch trips' });
+  }
+});
+
+// Get all passengers of a specific trip
+
+app.get("/trip/:trip_id/passengers", async (req, res) => {
+  const query = "SELECT * FROM passengers WHERE trip_id = $1;";
+  try {
+    const passengers = await db.any(query, [req.params.trip_id]);
+    res.json({ status: 'success', data: passengers });
+  } catch (err) {
+    console.log(err);
+    res.json({ status: 'error', message: 'Failed to fetch passengers' });
+  }
+});
+
+// Delete a trip
+
+app.delete("/trip/:trip_id", async (req, res) => {
+  const query = "DELETE FROM trip WHERE trip_id = $1 AND driverID = $2;";
+  try {
+    await db.none(query, [req.params.trip_id, req.session.user]);
+    res.json({ status: 'success', message: 'Trip deleted successfully' });
+  } catch (err) {
+    console.log(err);
+    res.json({ status: 'error', message: 'Failed to delete trip' });
+  }
 });
 
 // Authentication Required
