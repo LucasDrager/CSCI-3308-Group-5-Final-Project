@@ -1,14 +1,17 @@
 <%- include ('../partials/header') %>
 
+<head>
+  <link rel="stylesheet" href="../../resources/css/createTrip.css">
+</head>
 <main>
-  <div class="container-fluid">
-    <div class="jumbotron text-center my-5 shadow" style="background-color: grey; height: 200px;">
+  <div class="container-fluid" id="header_box">
+    <div class="jumbotron text-center my-5 shadow" id="manage_trips">
       <h1 class="pt-5">Manage Trips</h1>
     </div>
-    <div class="card">
+    <div class="card" id="create_trip">
       <div class="card-body">
         <h1 class="text-center my-4">Create a Trip</h1>
-        <form id="tripForm" action="/trip" method="POST" class="needs-validation" novalidate>
+        <form id="tripForm" class="needs-validation" novalidate>
           <div class="form-group pb-3">
             <label for="destination">Destination</label>
             <input type="text" class="form-control" id="destination" name="destination" required/>
@@ -16,7 +19,7 @@
           </div>
 
           <div class="form-group pb-3">
-            <label for="original_location">Leaving From</label>
+            <label for="original_location">Starting Location</label>
             <input type="text" class="form-control" id="original_location" name="original_location" required/>
             <div class="invalid-feedback">Please provide an original location.</div>
           </div>
@@ -28,7 +31,7 @@
     <div id="addedTripInfo" class="mt-4">
     </div>
   </div>
-  <div class="card mt-4">
+  <div class="card mt-4" id="create_trip">
     <div class="card-body">
       <h1 class="text-center my-4">Your Trips</h1>
       <div id="tripList">
@@ -52,9 +55,9 @@
               tripElement.classList.add('card', 'mb-3');
               tripElement.innerHTML = `
                 <div class="card-body">
-                  <h5 class="card-title">${trip.destination}</h5>
-                  <p class="card-text">Starting location: ${trip.original_location}</p>
-                  <a href="/trip/${trip.trip_id}/passengers" class="btn btn-primary">View Passengers</a>
+                  <h5 class="card-title">Destination: ${trip.destination}</h5>
+                  <p class="card-text">Starting Location: ${trip.original_location}</p>
+                  <a href="/trip/${trip.trip_id}/passengers" class="btn btn-primary">Edit Trip Details</a>
                 </div>
               `;
               tripList.appendChild(tripElement);
@@ -66,7 +69,30 @@
 
     // Add event listener to the form
     document.getElementById('tripForm').addEventListener('submit', function(event) {
-      location.reload();
+    event.preventDefault(); // prevent the form from submitting normally
+    var destination = document.getElementById('destination').value;
+    var original_location = document.getElementById('original_location').value;
+    fetch('/trip', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        destination: destination,
+        original_location: original_location
+      }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'success') {
+        fetchTrips(); // update the trip list
+      } else {
+        console.error('Error:', data.message);
+      }
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
     });
 
     // Validation code if we want to validate user input later
