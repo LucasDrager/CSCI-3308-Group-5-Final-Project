@@ -48,6 +48,7 @@ app.use(
     resave: false,
   })
 );
+
 app.use('/resources', express.static('resources'));
 
 app.use(
@@ -55,6 +56,7 @@ app.use(
     extended: true,
   })
 );
+
 const user = {
   username: undefined,
   first_name: undefined,
@@ -71,10 +73,10 @@ const user = {
 app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
+
 app.get("/", (req, res) => {
   res.render("pages/login", { showSignUpPanel: false });
 });
-
 
 //Login Get call
 app.get("/login", (req,res) => {
@@ -85,7 +87,6 @@ app.get("/login", (req,res) => {
 app.get("/register", (req,res) => {
   res.render("pages/login", { showSignUpPanel: true });
 });
-
 
 //Login post call
 app.post("/login", async (req, res) => {
@@ -108,7 +109,6 @@ app.post("/login", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.render("pages/login", { user, showSignUpPanel: false, error: "An error occurred. Please try again." });
-
   }
 });
 
@@ -127,7 +127,6 @@ app.get("/register", (req, res) => {
 //Register post call
 app.post("/register", async (req, res) => {
   let hash;
-
   bcrypt.genSalt(10, function(err, salt) {
     bcrypt.hash(req.body.password, salt, function(err, passHash) {
       hash = passHash;
