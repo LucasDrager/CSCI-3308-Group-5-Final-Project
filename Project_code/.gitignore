@@ -102,3 +102,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+# DS_Store items, items are usualyl created by MacOS
+.DS_Store
