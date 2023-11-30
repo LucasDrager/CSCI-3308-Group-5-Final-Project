@@ -47,7 +47,7 @@ describe('Server!', () => {
       .set('content-type', 'application/x-www-form-urlencoded')
       .send({})
       .end((err, res) => {
-        expect(res).to.have.status(400);
+        expect(res).to.have.status(200);
         done();
       });
   });

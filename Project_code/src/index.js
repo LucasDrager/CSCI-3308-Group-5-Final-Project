@@ -78,6 +78,10 @@ app.get("/", (req, res) => {
 
 //Login Get call
 app.get("/login", (req,res) => {
+  if(req.query.message){
+    res.render("pages/login", { user, showSignUpPanel: false, message: req.query.message});
+    return;
+  }
   res.render("pages/login", { showSignUpPanel: false });
 });
 
@@ -103,20 +107,13 @@ app.post("/login", async (req, res) => {
       res.redirect("/homepage"); 
     } else {
       // Authentication failed
-      res.render("pages/login", { user, showSignUpPanel: false, error: "Invalid username or password" });
+      res.render("pages/login", { user, showSignUpPanel: false, message: "Invalid password" });
     }
   } catch (err) {
     console.error(err);
-    res.render("pages/login", { user, showSignUpPanel: false, error: "An error occurred. Please try again." });
+    res.render("pages/login", { user, showSignUpPanel: false, message: "User does not exist"});
 
   }
-});
-
-
-//log out get call
-app.get("/logout", (req, res) => {
-  req.session.destroy();
-  res.render("pages/login", { showSignUpPanel: false });
 });
 
 //Register post call
@@ -144,6 +141,22 @@ app.post("/register", async (req, res) => {
       }
     });
   });
+});
+
+const auth = (req, res, next) => {
+  if (!req.session.user) {
+    // Default to login page.
+    return res.redirect('/login?message=Please%20log%20in%20to%20access%20this%20page');
+  } 
+  next();
+};
+
+app.use(auth);
+
+//log out get call
+app.get("/logout", (req, res) => {
+  req.session.destroy();
+  res.render("pages/login", { showSignUpPanel: false });
 });
 
 // Settings GET API call
@@ -218,15 +231,7 @@ app.get("/tripcreate", (req, res) => {
 });
   
 // Authentication Middleware.
-const auth = (req, res, next) => {
-  if (!req.session.user) {
-    // Default to login page.
-    return res.redirect('/login');
-  } else {
-    return res.redirect("/homepage")
-  }
-  next();
-};
+
 
 //Go to createTrip page
 app.get("/createTrip", (req, res) => {

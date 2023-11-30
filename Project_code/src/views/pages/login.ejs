@@ -3,6 +3,11 @@
 <body>
   <div class="login-wrap">
     <div class="login-html">
+      <% if (typeof message !== 'undefined' && message !== null) { %>
+        <div class="error-message">
+          <%= message %>
+        </div>
+      <% } %>
       <% if (typeof showSignUpPanel === 'undefined') { %>
         <% var showSignUpPanel = false; %>
         <% console.log('showSignUpPanel is undefined'); %>
