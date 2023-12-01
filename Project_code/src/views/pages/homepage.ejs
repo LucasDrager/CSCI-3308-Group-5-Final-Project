@@ -3,11 +3,11 @@
 <script src="../../resources/js/homepage.js"></script>
 <link rel="stylesheet" href="../../resources/css/homepage.css">
 <header>
-    <h1>Ski Trip Planner</h1>
-    <div id="search-box">
+    <h1>Planned Trips</h1>
+    <!-- <div id="search-box">
         <input type="text" id="trip-search" placeholder="Search for a trip...">
         <button onclick="searchTrip()">Search</button>
-    </div>
+    </div> -->
 </header>
 <main>
     <section id="current-trips">
@@ -29,33 +29,9 @@
             </div>
         <% } %>
     </section>
-    <!-- <section id="recommended-trips">
-        <h2>Recommended Trips</h2> -->
-        <!-- Example recommended trip cards -->
-        <!-- <div class="trip-card">
-            <h3>Mountain Retreat</h3>
-            <p><strong>From:</strong> 2023-12-20</p>
-            <p><strong>To:</strong> 2023-12-25</p>
-            <p><strong>Driver:</strong> Sarah Williams</p>
-            <p><strong>Riders:</strong> Michael Turner, Olivia White</p>
-            <p><strong>Schedule:</strong> 11:00 AM - 5:00 PM</p>
-            <button onclick="joinTrip()">Join Trip</button>
-        </div>
-        <div class="trip-card">
-            <h3>Snowy Wonderland</h3>
-            <p><strong>From:</strong> 2023-12-28</p>
-            <p><strong>To:</strong> 2024-01-02</p>
-            <p><strong>Driver:</strong> Alex Davis</p>
-            <p><strong>Riders:</strong> Jessica Miller, Ryan Johnson</p>
-            <p><strong>Schedule:</strong> 10:30 AM - 4:30 PM</p>
-            <button onclick="joinTrip()">Join Trip</button>
-        </div>
-    </section> -->
-
-
     <section id="register-trip">
-        <h2>Register a Trip</h2>
-        <button type="button" class="btn btn-secondary btn-lg" href="/login">Large button</button>
+        <h2>Want to make a new trip?</h2>
+        <a class="btn btn-secondary btn-lg" href="/createTrip" role="button">Create a Trip!</a>
     </section>
 </main>
 <%- include ('../partials/footer') %>

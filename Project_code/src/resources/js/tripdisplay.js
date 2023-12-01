@@ -23,24 +23,22 @@ function toggle_visibility(id,trip_id,driver_id,destination,original_location){
     EVENT_MODAL.show();
 }
 
-async function getPassengers(trip_id){
-    return await fetch(`/getPassengers/${trip_id}`, {method: "GET"})
-    .then((response) => {
-        return response.json();
+function getPassengers(trip_id){
+    let text;
+    let status; 
+    fetch(`/trip/${trip_id}/passengers`)
+    .then((res) => { 
+        status = res.status; 
+        return res.json() 
     })
-    .then((data) => {
-        let passengers = data;
-        console.log(passengers);
-        length = passengers.length;
-        var temp="";
-        for(i=0;i<length-1;i++)
-        {
-            temp += passengers[i] + ", ";
-        }
-        temp += passengers[length];
-        return temp;
+    .then((jsonResponse) => {
+        console.log(jsonResponse);
+        console.log(status);
+        text = jsonResponse;
     })
     .catch((err) => {
-    console.log(err);
+        // handle error
+        console.error(err);
     });
+    return text;
 }

@@ -8,52 +8,51 @@ const getAllTrips = async () => {
 //   getAllTrips,
 // };
 
-
 document.addEventListener('DOMContentLoaded', () => {
-    fetchAndDisplayTrips();
-  });
+  fetchAndDisplayTrips();
+});
+
+const fetchAndDisplayTrips = async () => {
+  // try {
+  //   const response = await fetch('http://localhost:3000/trips');
+  //   const trips = await response.json();
+
+  //   const tripsContainer = document.getElementById('trips-container');
+  //   tripsContainer.innerHTML = '';
+
+  //   trips.forEach((trip) => {
+  //     const tripCard = createTripCard(trip);
+  //     tripsContainer.appendChild(tripCard);
+  //   });
+  // } catch (error) {
+  //   console.error(error);
+  // }
+};
   
-  const fetchAndDisplayTrips = async () => {
-    // try {
-    //   const response = await fetch('http://localhost:3000/trips');
-    //   const trips = await response.json();
-  
-    //   const tripsContainer = document.getElementById('trips-container');
-    //   tripsContainer.innerHTML = '';
-  
-    //   trips.forEach((trip) => {
-    //     const tripCard = createTripCard(trip);
-    //     tripsContainer.appendChild(tripCard);
-    //   });
-    // } catch (error) {
-    //   console.error(error);
-    // }
-  };
-  
-  const createTripCard = (trip) => {
-    // const tripCard = document.createElement('div');
-    // tripCard.className = 'trip-card';
-  
-    // const tripTitle = document.createElement('h3');
-    // tripTitle.textContent = trip.destination;
-  
-    // const fromDate = document.createElement('p');
-    // fromDate.innerHTML = `<strong>From:</strong> ${trip.original_location}`;
-  
-    // // Add other trip details here...
-  
-    // const cancelButton = document.createElement('button');
-    // cancelButton.textContent = 'Cancel Trip';
-    // cancelButton.addEventListener('click', () => cancelTrip(trip.trip_id));
-  
-    // tripCard.appendChild(tripTitle);
-    // tripCard.appendChild(fromDate);
-    // // Add other trip details here...
-  
-    // tripCard.appendChild(cancelButton);
-  
-    // return tripCard;
-  };
+const createTripCard = (trip) => {
+  // const tripCard = document.createElement('div');
+  // tripCard.className = 'trip-card';
+
+  // const tripTitle = document.createElement('h3');
+  // tripTitle.textContent = trip.destination;
+
+  // const fromDate = document.createElement('p');
+  // fromDate.innerHTML = `<strong>From:</strong> ${trip.original_location}`;
+
+  // // Add other trip details here...
+
+  // const cancelButton = document.createElement('button');
+  // cancelButton.textContent = 'Cancel Trip';
+  // cancelButton.addEventListener('click', () => cancelTrip(trip.trip_id));
+
+  // tripCard.appendChild(tripTitle);
+  // tripCard.appendChild(fromDate);
+  // // Add other trip details here...
+
+  // tripCard.appendChild(cancelButton);
+
+  // return tripCard;
+};
   
   const cancelTrip = async (cardId,tripId,driver) => {
     try {

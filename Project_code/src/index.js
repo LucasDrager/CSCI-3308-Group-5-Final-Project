@@ -206,17 +206,6 @@ app.delete("/CancelUserMadeTrip/:Trip_id", (req,res) => {
   });
 });
 
-app.get("/getPassengers/:Trip_id", (req, res) => {
-  const passengerData = "SELECT passenger FROM passengers WHERE trip_id = $1"
-  db.any(passengerData,[req.params.Trip_id])
-  .then((data) => {
-    res.data = data
-  })
-  .catch((err) => {
-    console.log(err);
-  });
-});
-
 app.get("/tripcreate", (req, res) => {
   res.redirect("")
 });
