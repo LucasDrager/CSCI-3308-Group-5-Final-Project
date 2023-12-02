@@ -153,7 +153,15 @@ app.get("/settings", (req, res) => {
 
 // Profile Page GET API call
 app.get("/profile", (req, res) => {
-  res.render("pages/profile")
+  const usernameQuery = 'SELECT * FROM users WHERE users.username = $1'
+  db.any(usernameQuery, [req.session.user])
+  .then((users) => {
+    res.render('pages/profile', { users: users})
+  })
+  .catch((err) => {
+    console.log(err);
+    res.redirect('/error');
+  });
 });
 
 // Lab 11 test call
