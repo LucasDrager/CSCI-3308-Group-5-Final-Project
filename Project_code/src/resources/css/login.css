@@ -309,3 +309,13 @@ a {
 .login-html .sign-up:checked + .tab + .login-form .sign-up-htm {
   transform: rotate(0);
 }
+
+
+.error-message {
+  background-color: rgba(255, 0, 0, 0.2); /* Red color with 20% transparency */
+  color: #cc0000; /* Dark red text color */
+  text-align: center;
+  padding: 10px; /* Add padding around text */
+  margin-bottom: 10px; /* Add margin at the bottom */
+  border-radius: 5px; /* Round the corners */
+}

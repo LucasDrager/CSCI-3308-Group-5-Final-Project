@@ -23,8 +23,8 @@ function toggle_visibility(id,trip_id,driver_id,destination,original_location){
     EVENT_MODAL.show();
 }
 
-async function getPassengers(trip_id){
-    return await fetch(`/getPassengers/${trip_id}`, {method: "GET"})
+function getPassengers(trip_id){
+    fetch(`/trip/${trip_id}/passengers`, {method: "GET"})
     .then((response) => {
         return response.json();
     })
