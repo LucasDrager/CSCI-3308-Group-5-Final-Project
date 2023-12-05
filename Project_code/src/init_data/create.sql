@@ -71,3 +71,24 @@ CREATE TABLE IF NOT EXISTS trip_to_users (
     FOREIGN KEY (user_id) REFERENCES users(username),
     FOREIGN KEY (trip_id) REFERENCES trip(trip_id)
 );
+
+CREATE TABLE IF NOT EXISTS messages (
+  chatID  PRIMARY KEY,
+  sender varchar(50) REFERENCES users(username),
+  reciever varchar(50) REFERENCES users(username),
+  message_text text,
+  sent_at timestamp
+);
+
+CREATE TABLE IF NOT EXISTS chats (
+chatID varchar(50),
+FOREIGN KEY (user1) varchar(50) REFERENCES users(username),
+FOREIGN KEY (user2) varchar(50) REFERENCES users(username)
+
+);
+
+ALTER TABLE messages
+ADD chats_ID int;
+
+ALTER TABLE messages
+DROP COLUMN chatID;
