@@ -1,8 +1,10 @@
 <%- include ('../partials/header') %>
 <header>
   <h1>Trips</h1>
-  <link rel="stylesheet" href="../../resources/css/createTrip.css">
 </header>
+<head>
+  <link rel="stylesheet" href="../../resources/css/createTrip.css">
+</head>
 <main>
   <div class="container-fluid" id="header_box">
     <div class="jumbotron text-center my-5 shadow" id="manage_trips">
@@ -18,11 +20,13 @@
             <div class="invalid-feedback">Please provide a destination.</div>
           </div>
 
+
           <div class="form-group pb-3">
             <label for="original_location">Starting Location</label>
             <input type="text" class="form-control" id="original_location" name="original_location" required/>
             <div class="invalid-feedback">Please provide an original location.</div>
           </div>
+
 
           <button type="submit" class="btn btn-primary">Submit</button>
         </form>
@@ -40,32 +44,72 @@
     </div>
   </div>
 
+
+  <div class="modal fade" id="editTripModal" tabindex="-1" role="dialog" aria-labelledby="editTripModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editTripModalLabel">Edit Trip Details</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="editTripForm" class="needs-validation" novalidate>
+            <div class="form-group pb-3">
+              <label for="editDestination">Destination</label>
+              <input type="text" class="form-control" id="editDestination" name="destination" required/>
+              <div class="invalid-feedback">Please provide a destination.</div>
+            </div>
+ 
+            <div class="form-group pb-3">
+              <label for="editOriginalLocation">Starting Location</label>
+              <input type="text" class="form-control" id="editOriginalLocation" name="original_location" required/>
+              <div class="invalid-feedback">Please provide an original location.</div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="editTripSubmit">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
+
 
 <script>
     // Fetch all trips of the current user
     function fetchTrips() {
-        fetch('/trips')
-          .then(response => response.json())
-          .then(data => {
-            const tripList = document.getElementById('tripList');
-            tripList.innerHTML = ''; // Clear the trip list first
-            data.data.forEach(trip => {
-              const tripElement = document.createElement('div');
-              tripElement.classList.add('card', 'mb-3');
-              tripElement.innerHTML = `
-                <div class="card-body">
-                  <h5 class="card-title">Destination: ${trip.destination}</h5>
-                  <p class="card-text">Starting Location: ${trip.original_location}</p>
-                  <a href="/trip/${trip.trip_id}/passengers" class="btn btn-primary">Edit Trip Details</a>
-                </div>
-              `;
-              tripList.appendChild(tripElement);
-            });
+    fetch('/trips')
+      .then(response => response.json())
+      .then(data => {
+        const tripList = document.getElementById('tripList');
+        tripList.innerHTML = ''; // Clear the trip list first
+        data.data.forEach(trip => {
+          const tripElement = document.createElement('div');
+          tripElement.classList.add('card', 'mb-3');
+          tripElement.innerHTML = `
+            <div class="card-body">
+              <h5 class="card-title">Destination: ${trip.destination}</h5>
+              <p class="card-text">Starting Location: ${trip.original_location}</p>
+              <button class="btn btn-primary editTripButton" data-trip-id="${trip.trip_id}">Edit Trip Details</button>
+            </div>
+          `;
+          tripList.appendChild(tripElement);
+          tripElement.querySelector('.editTripButton').addEventListener('click', function() {
+            document.getElementById('editDestination').value = trip.destination;
+            document.getElementById('editOriginalLocation').value = trip.original_location;
+            $('#editTripModal').modal('show');
           });
+        });
+      });
     }
 
+
     fetchTrips(); // Call the function when the page loads
+
 
     // Add event listener to the form
     document.getElementById('tripForm').addEventListener('submit', function(event) {
@@ -92,8 +136,40 @@
     })
     .catch((error) => {
       console.error('Error:', error);
+    })
+    fetchTrips();
     });
+
+
+    document.getElementById('editTripSubmit').addEventListener('click', function() {
+    const tripId = document.querySelector('.editTripButton').getAttribute('data-trip-id');
+    const destination = document.getElementById('editDestination').value;
+    const original_location = document.getElementById('editOriginalLocation').value;
+    fetch(`/trip/${tripId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        destination: destination,
+        original_location: original_location
+      }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'success') {
+        fetchTrips(); // update the trip list
+        $('#editTripModal').modal('hide');
+      } else {
+        console.error('Error:', data.message);
+      }
+    })
+    .catch((error) => {
+      console.error('Error:', error);
     });
+    fetchTrips();
+    });
+
 
     // Validation code if we want to validate user input later
     (function() {
@@ -115,4 +191,8 @@
     })();
 </script>
 
+
 <%- include ('../partials/footer') %>
+
+
+
