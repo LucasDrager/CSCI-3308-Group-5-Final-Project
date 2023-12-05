@@ -1,0 +1,121 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+h1 {
+    margin:auto;
+}
+
+#search-box {
+    margin-top: 20px;
+}
+
+#header_box {
+    padding: 10px;
+    width: 100%;
+    border: ridge;
+    border-radius: 5px;
+}
+
+#manage_trips {
+    border-radius: 25px;
+    background: rgb(89, 149, 198);
+    /* padding: 20px; */
+    width: 100%;
+    height: 150px;
+    margin: auto;
+    text-align: center;
+}
+
+#create_trip {
+    color: #333;
+}
+
+button {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+main {
+    max-width: 800px;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+section {
+    margin-bottom: 40px;
+}
+
+h2 {
+    color: #333;
+}
+
+.trip-card {
+    background-color: #f9f9f9;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-top: 10px;
+}
+
+input,
+textarea {
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+button[type="submit"] {
+    background-color: #4285f4;
+    color: #fff;
+    cursor: pointer;
+}
+
+button[type="submit"]:hover {
+    background-color: #3367d6;
+}
+.col-md-5{
+    margin: auto;
+}
+.col-md-11{
+    margin: auto;
+}
+#mapDiv{
+    margin: auto;
+    margin-top: 25px;
+    position: relative;
+}
+#map{
+    margin-left: 250px;
+}
