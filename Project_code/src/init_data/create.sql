@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
   first_name varchar(50),
   last_name varchar(50),
   email varchar(50),
+  profile_img BYTEA,
   created_at timestamp
 );
 
