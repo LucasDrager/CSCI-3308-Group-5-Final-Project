@@ -69,7 +69,7 @@ app.get('/welcome', (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.render("pages/messaging", { showSignUpPanel: false });
+  res.render("pages/login", { showSignUpPanel: false });
 });
 
 //Login Get call
