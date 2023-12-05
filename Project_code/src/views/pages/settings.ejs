@@ -38,13 +38,11 @@
             </div>
 
             <div class="">
-                <form id="deleteAccount" action="/deletion" method="POST" onsubmit="return initiateDeletion()">
-                    <label for="passwordToDelete">Enter your password to confirm:</label>
-                    <input type="password" id="passwordToDelete" name="passwordToDelete" required>
-            
+                <form id="deleteAccount" action="/deletion" method="POST" onsubmit="return confirmDelete()">
+                    <label for="confirmDelete">Type 'DELETE' to confirm:</label>
+                    <input type="text" id="confirmDelete" name="confirmDelete" required>
                     <button type="submit">Delete Account</button>
                 </form>
-            
             </div>
         </div>
     </main>

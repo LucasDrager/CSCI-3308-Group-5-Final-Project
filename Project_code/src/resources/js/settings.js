@@ -8,36 +8,46 @@ function confirmDelete() {
     return false;
   }
 };
-// Function to show a success message and hide it after a few seconds
-function showSuccessMessage(message) {
-  const successMessageElement = document.getElementById('successMessage');
-  successMessageElement.textContent = message;
-  successMessageElement.style.display = 'block';
 
-  // Hide the message after 3 seconds (adjust the time as needed)
+
+function displayMessage(message, isSuccess = true) {
+  const messageContainer = document.getElementById('message-container');
+
+  // Create a new div element for the message
+  const messageDiv = document.createElement('div');
+
+  // Set the message text
+  messageDiv.innerText = message;
+
+  // Add a CSS class based on success or failure
+  messageDiv.className = isSuccess ? 'success-message' : 'error-message';
+
+  // Append the message div to the container
+  messageContainer.appendChild(messageDiv);
+
+  // Automatically remove the message after a few seconds (adjust as needed)
   setTimeout(() => {
-    successMessageElement.textContent = '';
-    successMessageElement.style.display = 'none';
+    messageDiv.remove();
   }, 3000);
-};
+}
 
-// Function to handle API call success and display a message
-function handleAPISuccess(apiName) {
-  // Customize messages for each API call as needed
-  switch (apiName) {
-    case 'changeUsername':
-      showSuccessMessage('Username updated successfully');
-      break;
-    case 'changePassword':
-      showSuccessMessage('Password changed successfully');
-      break;
+function handleChangeUsername() {
+  
+  displayMessage('Username updated successfully', true);
 
-    default:
-    // Do nothing for unknown API calls
-  }
-};
+  return false;
+}
 
+function handleChangePassword() {
 
-document.addEventListener('DOMContentLoaded', () => {
-  handleAPISuccess('changeUsername');
-});
+  displayMessage('Password updated successfully', true);
+
+  return false;
+}
+
+function handleDeleteAccount() {
+
+  displayMessage('Account deleted successfully', true);
+
+  return false;
+}
