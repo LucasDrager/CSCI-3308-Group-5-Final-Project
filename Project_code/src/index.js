@@ -331,6 +331,23 @@ app.get("/profile", async (req, res) => {
   }
 });
 
+// Different User Profile Page GET API call
+app.get("/profile/:username", async (req, res) => {
+  try {
+    // Fetch the user's data from the database
+    const userData = await db.oneOrNone('SELECT * FROM users WHERE username = $1', [req.params.username]);
+    // If the user exists
+    if (userData) {
+      res.render("pages/profile.ejs", { user : userData });
+    } else {
+      res.status(404).json({ success: false, message: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error finding profile:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 // Lab 11 test call
 app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
