@@ -3,9 +3,12 @@
         <h1>Settings</h1>
 
         <script src="../../resources/js/settings.js"></script>
+        <link rel="stylesheet" href="../../resources/css/settings.css">
 
-        <div>
-            <div>
+        <div id="message-container"></div>
+
+        <div class="container">
+            <div class="">
                 <form id="changeProfileIMG" action="/uploadIMG" method="POST" enctype="multipart/form-data">
                     <label for="profileImage">Upload a Profile Image</label>
                     <input type="file" name="profileImage" id="profileImage" accept="image/*">
@@ -14,16 +17,16 @@
                 </form>
             </div>
 
-            <div>
-                <form id="changeUsername" action="/change_username" method="POST">
+            <div class="">
+                <form id="changeUsername" action="/change_username" method="POST" onsubmit="return handleChangeUsername()">
                     <label for="newUsername">New Username:</label>
                     <input type="text" id="newUsername" name="newUsername" required>
                     <button type="submit">Change Username</button>
                 </form>
             </div>
 
-            <div>
-                <form id="changePassword" action="/change_password" method="POST">
+            <div class="">
+                <form id="changePassword" action="/change_password" method="POST" onsubmit="return handleChangePassword()">
                     <label for="currentPassword">Current Password:</label>
                     <input type="password" id="currentPassword" name="currentPassword" required>
 
@@ -34,12 +37,14 @@
                 </form>
             </div>
 
-            <div>
-                <form id="deleteAccount" action="/deletion" method="POST" onsubmit="return confirmDelete()">
-                    <label for="confirmDelete">Type 'DELETE' to confirm:</label>
-                    <input type="text" id="confirmDelete" name="confirmDelete" required>
+            <div class="">
+                <form id="deleteAccount" action="/deletion" method="POST" onsubmit="return initiateDeletion()">
+                    <label for="passwordToDelete">Enter your password to confirm:</label>
+                    <input type="password" id="passwordToDelete" name="passwordToDelete" required>
+            
                     <button type="submit">Delete Account</button>
                 </form>
+            
             </div>
         </div>
     </main>
