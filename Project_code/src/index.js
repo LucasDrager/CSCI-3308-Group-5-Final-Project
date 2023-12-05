@@ -6,8 +6,10 @@ const express = require('express'); // To build an application server or API
 const app = express();
 const pgp = require('pg-promise')(); // To connect to the Postgres DB from the node server
 const bodyParser = require('body-parser');
-const session = require('express-session'); // To set the session object. To store or access session data, use the `req.session`, which is (generally) serialized as JSON by the store.
+const session = require('express-session'); // To set the session object. To store or access session data, use the `req.session`, which is (generally) serialized as JSON by the store. 
 const bcrypt = require('bcrypt'); //  To hash passwords
+const multer = require('multer');
+const path = require('path');
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
@@ -48,6 +50,7 @@ app.use(
     resave: false,
   })
 );
+
 app.use('/resources', express.static('resources'));
 
 app.use(
@@ -55,13 +58,6 @@ app.use(
     extended: true,
   })
 );
-const user = {
-  username: undefined,
-  first_name: undefined,
-  last_name: undefined,
-  email: undefined,
-  timestamp: undefined
-};
 
 // *****************************************************
 // <!-- Section 4 : API Routes -->
@@ -71,13 +67,17 @@ const user = {
 app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
+
 app.get("/", (req, res) => {
   res.render("pages/login", { showSignUpPanel: false });
 });
 
-
 //Login Get call
 app.get("/login", (req,res) => {
+  if(req.query.message){
+    res.render("pages/login", {showSignUpPanel: false, message: req.query.message});
+    return;
+  }
   res.render("pages/login", { showSignUpPanel: false });
 });
 
@@ -86,11 +86,10 @@ app.get("/register", (req,res) => {
   res.render("pages/login", { showSignUpPanel: true });
 });
 
-
 //Login post call
 app.post("/login", async (req, res) => {
   try {
-    const usernameQuery = `SELECT password FROM users WHERE users.username = $1`;
+    const usernameQuery = `SELECT * FROM users WHERE users.username = $1`;
     const data = await db.one(usernameQuery, [req.body.username]);
     const password = data.password;
 
@@ -98,31 +97,26 @@ app.post("/login", async (req, res) => {
 
     if (match) {
       // Authentication successful
-      req.session.user = req.body.username;
+      req.session.username = req.body.username;
+      req.session.first_name = data.first_name;
+      req.session.last_name = data.last_name;
+      req.session.email = data.email;
       req.session.save();
       res.redirect("/homepage"); 
     } else {
       // Authentication failed
-      res.render("pages/login", { user, showSignUpPanel: false, error: "Invalid username or password" });
+      res.render("pages/login", {showSignUpPanel: false, message: "Invalid password" });
     }
   } catch (err) {
     console.error(err);
-    res.render("pages/login", { user, showSignUpPanel: false, error: "An error occurred. Please try again." });
+    res.render("pages/login", { showSignUpPanel: false, message: "User does not exist"});
 
   }
-});
-
-
-//log out get call
-app.get("/logout", (req, res) => {
-  req.session.destroy();
-  res.render("pages/login", { showSignUpPanel: false });
 });
 
 //Register post call
 app.post("/register", async (req, res) => {
   let hash;
-
   bcrypt.genSalt(10, function(err, salt) {
     bcrypt.hash(req.body.password, salt, function(err, passHash) {
       hash = passHash;
@@ -146,16 +140,27 @@ app.post("/register", async (req, res) => {
   });
 });
 
+const auth = (req, res, next) => {
+  if (!req.session.username) {
+    // Default to login page.
+    return res.redirect('/login?message=Please%20log%20in%20to%20access%20this%20page');
+  } 
+  next();
+};
+
+app.use(auth);
+
+//log out get call
+app.get("/logout", (req, res) => {
+  req.session.destroy();
+  res.render("pages/login", { showSignUpPanel: false });
+});
+
 // Settings GET API call
 app.get("/settings", (req, res) => {
   res.render("pages/settings")
 });
 
-<<<<<<< Updated upstream
-// Profile Page GET API call
-app.get("/profile", (req, res) => {
-  res.render("pages/profile")
-=======
 const storage = multer.memoryStorage(); // Store files in memory
 const upload = multer({ storage: storage });
 
@@ -324,7 +329,6 @@ app.get("/profile", async (req, res) => {
     console.error('Error finding profile:', error);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
->>>>>>> Stashed changes
 });
 
 // Lab 11 test call
@@ -333,15 +337,20 @@ app.get('/welcome', (req, res) => {
 });
 
 app.get("/homepage", (req, res) => {
-  const tripData = `SELECT trip.trip_id,trip.driverid,trip.destination,trip.original_location 
-  FROM trip INNER JOIN passengers ON trip.trip_id = passengers.trip_id 
-  INNER JOIN users ON users.username = passengers.passenger 
-  WHERE trip.active = TRUE 
-    AND (passengers.passenger != trip.driverid) 
-    AND ((passengers.passenger = $1) OR (trip.driverid = $1));`
-  db.any(tripData,[req.session.user])
+  // const tripData = `SELECT trip.trip_id,trip.driverid,trip.destination,trip.original_location 
+  // FROM trip INNER JOIN passengers ON trip.trip_id = passengers.trip_id 
+  // INNER JOIN users ON users.username = passengers.passenger 
+  // WHERE trip.active = TRUE 
+  //   AND (passengers.passenger != trip.driverid) 
+  //   AND ((passengers.passenger = $1) OR (trip.driverid = $1));`
+  const usertrips = `SELECT * FROM trip WHERE trip.driverid = $1;`;
+  const userJoinedTrips =`SELECT * FROM trip WHERE trip.trip_id IN (SELECT trip_id FROM passengers WHERE passengers.passenger = $1);`;
+  db.task('get-everything', task => {
+    return task.batch([task.any(usertrips,[req.session.username]), task.any(userJoinedTrips,[req.session.username])]);
+  })
   .then((data) => {
-    res.render("pages/homepage.ejs",{'Data':data,'User':req.session.user});
+    console.log(data);
+    res.render("pages/homepage.ejs",{'Data':data,'User':req.session.username});
   })
   .catch((err) => {
     console.log(err);
@@ -351,9 +360,9 @@ app.get("/homepage", (req, res) => {
 
 app.delete("/CancelUserTrip/:Trip_id", (req,res) => {
   const deleteQuery = "DELETE FROM passengers WHERE trip_id = $1 AND passenger = $2;";
-  db.any(deleteQuery,[req.params.Trip_id,req.session.user])
+  db.any(deleteQuery,[req.params.Trip_id,req.session.username])
   .then((data) => {
-    console.log("Data deleteed successfully");
+    console.log("Data deleted successfully");
   })
   .catch((err) => {
     console.log(err);
@@ -365,22 +374,11 @@ app.delete("/CancelUserMadeTrip/:Trip_id", (req,res) => {
   const deleteQuery = "DELETE FROM passengers WHERE trip_id = $1; DELETE FROM trip WHERE trip_id = $1;";
   db.any(deleteQuery,[req.params.Trip_id])
   .then((data) => {
-    console.log("Data deleteed successfully");
+    console.log("Data deleted successfully");
   })
   .catch((err) => {
     console.log(err);
     res.redirect("homepage");
-  });
-});
-
-app.get("/getPassengers/:Trip_id", (req, res) => {
-  const passengerData = "SELECT passenger FROM passengers WHERE trip_id = $1"
-  db.any(passengerData,[req.params.Trip_id])
-  .then((data) => {
-    res.data = data
-  })
-  .catch((err) => {
-    console.log(err);
   });
 });
 
@@ -389,15 +387,7 @@ app.get("/tripcreate", (req, res) => {
 });
   
 // Authentication Middleware.
-const auth = (req, res, next) => {
-  if (!req.session.user) {
-    // Default to login page.
-    return res.redirect('/login');
-  } else {
-    return res.redirect("/homepage")
-  }
-  next();
-};
+
 
 //Go to createTrip page
 app.get("/createTrip", (req, res) => {
@@ -409,7 +399,7 @@ app.get("/createTrip", (req, res) => {
 app.post("/trip", (req, res) => {
   const query = "INSERT INTO trip (driverID, destination, original_location) VALUES ($1, $2, $3);";
   //REMOVE COMMENT. Attempt to use both session variable and variable from page.
-  db.none(query, [req.session.user, req.body.destination, req.body.original_location])
+  db.none(query, [req.session.username, req.body.destination, req.body.original_location])
     .then(() => {
       // res.json({ status: 'success', message: 'Trip created successfully' });
       console.log('Trip created successfully');
@@ -424,7 +414,7 @@ app.post("/trip", (req, res) => {
 
 app.put("/trip/:trip_id", (req, res) => {
   const query = "UPDATE trip SET driverID = $1, destination = $2, original_location = $3 WHERE trip_id = $4;";
-  db.none(query, [req.session.user, req.body.destination, req.body.original_location, req.params.trip_id])
+  db.none(query, [req.session.username, req.body.destination, req.body.original_location, req.params.trip_id])
     .then(() => {
       // res.json({ status: 'success', message: 'Trip updated successfully' });
       console.log('Trip updated successfully');
@@ -455,7 +445,7 @@ app.post("/trip/:trip_id/passenger", (req, res) => {
 app.get("/trips", async (req, res) => {
   const query = "SELECT * FROM trip WHERE driverID = $1;";
   try {
-    const trips = await db.any(query, [req.session.user]);
+    const trips = await db.any(query, [req.session.username]);
     res.json({ status: 'success', data: trips });
   } catch (err) {
     console.log(err);
@@ -481,7 +471,7 @@ app.get("/trip/:trip_id/passengers", async (req, res) => {
 app.delete("/trip/:trip_id", async (req, res) => {
   const query = "DELETE FROM trip WHERE trip_id = $1 AND driverID = $2;";
   try {
-    await db.none(query, [req.params.trip_id, req.session.user]);
+    await db.none(query, [req.params.trip_id, req.session.username]);
     res.json({ status: 'success', message: 'Trip deleted successfully' });
   } catch (err) {
     console.log(err);
