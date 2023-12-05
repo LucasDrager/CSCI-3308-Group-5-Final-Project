@@ -18,8 +18,6 @@
                 <p><strong>From:</strong> <%=Data[i].destination%></p>
                 <p><strong>To:</strong> <%=Data[i].original_location%></p>
                 <p><strong>Driver:</strong> <%=Data[i].driverid%></p>
-                <!-- <p><strong>Riders:</strong> [Rider query needed]</p> -->
-                <p><strong>Schedule:</strong> [Trip time needed]</p>
                 <% if(Data[i].driverid == User){ %>
                     <button type="button" onclick="cancelTrip('<%-i%>','<%-Data[i].trip_id%>',false)">Cancel Trip</a>
                   <% } else{ %>  

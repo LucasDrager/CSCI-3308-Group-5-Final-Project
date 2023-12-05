@@ -5,7 +5,7 @@ function toggle_visibility(id,trip_id,driver_id,destination,original_location){
     document.getElementById("TripDriver").innerHTML = driver_id;
     document.getElementById("LocationTo").innerHTML = destination;
     document.getElementById("LocationFrom").innerHTML = original_location;
-    document.getElementById("Attendees").innerHTML = getPassengers(trip_id);
+    getPassengers(trip_id).then(num => document.getElementById("Attendees").innerHTML = num);
     let mapDiv = document.getElementById("mapDiv")
     let mapElement = document.getElementById("map")
     if (mapElement === null){
@@ -23,22 +23,25 @@ function toggle_visibility(id,trip_id,driver_id,destination,original_location){
     EVENT_MODAL.show();
 }
 
-function getPassengers(trip_id){
-    let text;
+async function getPassengers(trip_id){
+    let response;
+    let people = "";
     let status; 
-    fetch(`/trip/${trip_id}/passengers`)
+    response = await fetch(`/trip/${trip_id}/passengers`)
     .then((res) => { 
         status = res.status; 
         return res.json() 
     })
     .then((jsonResponse) => {
-        console.log(jsonResponse);
-        console.log(status);
-        text = jsonResponse;
+        return jsonResponse;
     })
     .catch((err) => {
         // handle error
         console.error(err);
     });
-    return text;
+    for (let i = 0; i < response.data.length; i++) {
+        people += response.data[i].passenger+",";
+    }
+    console.log(people)
+    return people;
 }

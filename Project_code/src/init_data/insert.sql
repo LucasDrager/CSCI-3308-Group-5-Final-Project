@@ -7,5 +7,4 @@ INSERT INTO trip (trip_id,driverID,destination,original_location,active) VALUES 
 
 INSERT INTO passengers (trip_id,passenger,passengerNum) VALUES (1,'Testerson',1);
 INSERT INTO passengers (trip_id,passenger,passengerNum) VALUES (2,'Tester',1);
-INSERT INTO passengers (trip_id,passenger,passengerNum) VALUES (2,'Tester',2);
 INSERT INTO passengers (trip_id,passenger,passengerNum) VALUES (3,'Tester',1);

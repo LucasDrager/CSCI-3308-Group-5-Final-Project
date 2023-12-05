@@ -186,7 +186,7 @@ app.delete("/CancelUserTrip/:Trip_id", (req,res) => {
   const deleteQuery = "DELETE FROM passengers WHERE trip_id = $1 AND passenger = $2;";
   db.any(deleteQuery,[req.params.Trip_id,req.session.user])
   .then((data) => {
-    console.log("Data deleteed successfully");
+    console.log("Data deleted successfully");
   })
   .catch((err) => {
     console.log(err);
@@ -198,7 +198,7 @@ app.delete("/CancelUserMadeTrip/:Trip_id", (req,res) => {
   const deleteQuery = "DELETE FROM passengers WHERE trip_id = $1; DELETE FROM trip WHERE trip_id = $1;";
   db.any(deleteQuery,[req.params.Trip_id])
   .then((data) => {
-    console.log("Data deleteed successfully");
+    console.log("Data deleted successfully");
   })
   .catch((err) => {
     console.log(err);
