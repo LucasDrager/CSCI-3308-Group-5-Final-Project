@@ -1,7 +1,9 @@
 <%- include ('../partials/header') %>
+<%- include ('../partials/menu') %>
 <script src="../../resources/js/tripdisplay.js"></script>
 <script src="../../resources/js/homepage.js"></script>
 <link rel="stylesheet" href="../../resources/css/homepage.css">
+<<<<<<< Updated upstream
 <header>
     <h1>Ski Trip Planner</h1>
     <div id="search-box">
@@ -9,6 +11,8 @@
         <button onclick="searchTrip()">Search</button>
     </div>
 </header>
+=======
+>>>>>>> Stashed changes
 <main>
     <section id="current-trips">
         <h2>Current Trips</h2>
@@ -25,7 +29,11 @@
                   <% } else{ %>  
                     <button type="button" onclick="cancelTrip('<%-i%>','<%-Data[i].trip_id%>',true)">Leave Trip</a>
                  <% } %>
+<<<<<<< Updated upstream
                 <button type="button" style="background-color: blue;" onclick="toggle_visibility('<%=i%>','<%-Data[i].trip_id%>','<%-Data[i].driverid%>','<%-Data[i].destination%>','<%-Data[i].original_location%>');">More details</button>
+=======
+                <button type="button" style="background-color: blue; margin-left: 10px;" onclick="toggle_visibility('<%-count%>','<%-Data[i][j].trip_id%>','<%-Data[i][j].driverid%>','<%-Data[i][j].destination%>','<%-Data[i][j].original_location%>');">More details</button>
+>>>>>>> Stashed changes
             </div>
         <% } %>
     </section>
