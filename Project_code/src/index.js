@@ -240,6 +240,23 @@ app.post("/change_password", async (req, res) => {
   }
 });
 
+//User page get call
+app.get("/users", async (req, res) => {
+  try {
+    // Fetch the user's data from the database
+    const userData = await db.any('SELECT * FROM users');
+    // If any users exist
+    if (userData) {
+      res.render("pages/users.ejs", { users : userData });
+    } else {
+      res.status(404).json({ success: false, message: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error finding profile:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 async function deleteUser(username) {
   try {
     // Delete related data in the friends table
@@ -298,16 +315,20 @@ app.post("/deletion", async (req, res) => {
 // END Settings API Calls
 
 // Profile Page GET API call
-app.get("/profile", (req, res) => {
-  const usernameQuery = 'SELECT * FROM users WHERE users.username = $1'
-  db.any(usernameQuery, [req.session.user])
-  .then((users) => {
-    res.render('pages/profile', { users: users})
-  })
-  .catch((err) => {
-    console.log(err);
-    res.redirect('/error');
-  });
+app.get("/profile", async (req, res) => {
+  try {
+    // Fetch the user's data from the database
+    const userData = await db.oneOrNone('SELECT * FROM users WHERE username = $1', [req.session.username]);
+    // If the user exists
+    if (userData) {
+      res.render("pages/profile.ejs", { user : userData });
+    } else {
+      res.status(404).json({ success: false, message: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error finding profile:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
 });
 
 // Lab 11 test call

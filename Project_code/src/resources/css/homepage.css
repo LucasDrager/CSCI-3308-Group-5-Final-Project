@@ -5,17 +5,6 @@ body {
     background-color: #f4f4f4;
 }
 
-header {
-    background-color: #333;
-    color: #fff;
-    padding: 20px;
-    text-align: center;
-}
-
-h1 {
-    margin: 0;
-}
-
 #search-box {
     margin-top: 20px;
 }
