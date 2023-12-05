@@ -8,6 +8,8 @@ const pgp = require('pg-promise')(); // To connect to the Postgres DB from the n
 const bodyParser = require('body-parser');
 const session = require('express-session'); // To set the session object. To store or access session data, use the `req.session`, which is (generally) serialized as JSON by the store. 
 const bcrypt = require('bcrypt'); //  To hash passwords
+const multer = require('multer');
+const path = require('path');
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
@@ -160,9 +162,25 @@ app.get("/settings", (req, res) => {
   res.render("pages/settings")
 });
 
+const storage = multer.memoryStorage(); // Store files in memory
+const upload = multer({ storage: storage });
+
 // Settings API Calls
-app.post("/uploadIMG", async (req, res) => {
-  
+app.post("/uploadIMG", upload.single("profileImage"), async (req, res) => {
+  try {
+    const { username } = req.session; // Assuming you store the username in the session
+    const imageBuffer = req.file.buffer;
+
+    // Update or insert user profile image
+    await db.query(
+      "INSERT INTO users (username, profile_img) VALUES ($1, $2) ON CONFLICT (username) DO UPDATE SET profile_img = $2",
+      [username, imageBuffer]
+    );
+      res.render("/settings");
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
+  }
 });
 
 app.post("/change_username", async (req, res) => {
