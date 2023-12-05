@@ -1,0 +1,29 @@
+.container {
+
+}
+
+.profileimgcont {
+
+}
+
+.usernamecont {
+
+}
+
+.passwordcont {
+
+}
+
+.deletecont {
+    
+}
+
+.success-message {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.error-message {
+    background-color: #f44336;
+    color: white;
+}
