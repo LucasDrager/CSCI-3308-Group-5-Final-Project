@@ -1,0 +1,18 @@
+/* body {
+  margin: 0;
+  color: #6a6f8c;
+  background: #ffffff; 
+  font: 600 16px/18px "Open Sans", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #1a1a1a;
+    color: #ffffff; 
+  }
+
+
+  body * {
+    filter: invert(100%);
+  }
+} */

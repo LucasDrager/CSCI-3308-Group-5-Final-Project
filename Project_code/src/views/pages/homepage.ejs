@@ -20,6 +20,9 @@
                     <button type="button" onclick="cancelTrip('<%-count%>','<%-Data[i][j].trip_id%>',false)">Cancel Trip</a>
                   <% } else{ %>  
                     <button type="button" onclick="cancelTrip('<%-count%>','<%-Data[i][j].trip_id%>',true)">Leave Trip</a>
+
+
+                        
                  <% } %>
                 <button type="button" style="background-color: blue;" onclick="toggle_visibility('<%-count%>','<%-Data[i][j].trip_id%>','<%-Data[i][j].driverid%>','<%-Data[i][j].destination%>','<%-Data[i][j].original_location%>');">More details</button>
             </div>
