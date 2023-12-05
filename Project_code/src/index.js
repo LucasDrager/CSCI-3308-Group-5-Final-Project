@@ -314,14 +314,21 @@ app.post("/deletion", async (req, res) => {
 });
 // END Settings API Calls
 
+// Profile Page GET API Redirect
+app.get("/profile", (req, res) => {
+  res.redirect("/profile/" + req.session.username);
+});
+
 // Profile Page GET API call
-app.get("/profile", async (req, res) => {
+app.get("/profile/:username", async (req, res) => {
   try {
     // Fetch the user's data from the database
-    const userData = await db.oneOrNone('SELECT * FROM users WHERE username = $1', [req.session.username]);
+    const userSession = req.session.username;
+    const userData = await db.oneOrNone('SELECT * FROM users WHERE username = $1', [req.params.username]);
+    const userRatings = await db.any('SELECT * FROM ratings WHERE ratee_id = $1', [req.params.username]);
     // If the user exists
     if (userData) {
-      res.render("pages/profile.ejs", { user : userData });
+      res.render("pages/profile.ejs", { user : userData , ratings : userRatings, activeUser : userSession});
     } else {
       res.status(404).json({ success: false, message: 'User not found' });
     }
@@ -331,19 +338,14 @@ app.get("/profile", async (req, res) => {
   }
 });
 
-// Different User Profile Page GET API call
-app.get("/profile/:username", async (req, res) => {
-  try {
-    // Fetch the user's data from the database
-    const userData = await db.oneOrNone('SELECT * FROM users WHERE username = $1', [req.params.username]);
-    // If the user exists
-    if (userData) {
-      res.render("pages/profile.ejs", { user : userData });
-    } else {
-      res.status(404).json({ success: false, message: 'User not found' });
-    }
+// Add Review POST Call
+app.post('/add_review', async (req, res) => {
+  try{
+    const values = [req.session.username, req.body.ratee_id, req.body.rating_value, req.body.review];
+    await db.none('INSERT INTO ratings (rater_id, ratee_id, rating_value, rated_at, review) VALUES ($1, $2, $3, NOW(), $4)', values);
+    res.redirect('/profile/' + req.body.ratee_id);
   } catch (error) {
-    console.error('Error finding profile:', error);
+    console.error('Error adding review:', error);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });

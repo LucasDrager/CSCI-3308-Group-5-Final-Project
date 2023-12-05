@@ -1,22 +1,90 @@
 <%- include ('../partials/header') %>
 <%- include ('../partials/menu') %>
-<head>
-    <link rel="stylesheet" href="../../resources/css/profile.css">
-</head>
 <body>
-    <div class="container">
-        <img src="" alt="Profile Picture Here">
-    </div>
-    <div class="profileinfo-container">
-        <h4>Username: <%= user.username %></h4>
-        <h4>Firstname: <%= user.first_name %></h4>
-        <h4>Lastname: <%= user.last_name %></h4>
-        <h4>Email: <%= user.email %></h4>
-    </div>
-    <div class="tripinfo-container">
-        <h4>Trips Completed: </h4>
-        <h4>Total Distance Travelled: </h4>
-        <h4>Average Rating: </h4>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-md-4">
+                <img src="" alt="Profile Picture Here" class="img-thumbnail">
+            </div>
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Username: <%= user.username %></h4>
+                        <p class="card-text">Firstname: <%= user.first_name %></p>
+                        <p class="card-text">Lastname: <%= user.last_name %></p>
+                        <p class="card-text">Email: <%= user.email %></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Trips Completed:</h4>
+                        <p class="card-text">Total Distance Travelled:</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        Ratings for <%= user.username %>
+                    </div>
+                    <% if (ratings) { %>
+                        <ul class="list-group list-group-flush">
+                            <% ratings.forEach(rating => { %>
+                                <li class="list-group-item">
+                                    <p class="mb-1">Rated by: <%= rating.rater_id %></p>
+                                    <p class="mb-1">Rating: <%= rating.rating_value %></p>
+                                    <p class="mb-1">Rated at: <%= rating.rated_at.toISOString().split('T')[0] %></p>
+                                    <p class="mb-1">Review: <%= rating.review %></p>
+                                </li>
+                            <% }) %>
+                        </ul>
+                    <% } else { %>
+                        <div class="card-body">
+                            <h5 class="card-title">No ratings found for this user.</h5>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+            <% if (activeUser !== user.username) { %>
+                <div class="row mt-3">
+                    <div class="col">
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#addReviewModal">Add Review</button>
+                    </div>
+                </div>
+            <% } %>
+            <div class="modal fade" id="addReviewModal" tabindex="-1" role="dialog" aria-labelledby="addReviewModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addReviewModalLabel">Add a Review for <%= user.username %></h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="/add_review" method="POST">
+                                <input type="hidden" name="ratee_id" value="<%= user.username %>">
+                                <div class="form-group">
+                                    <label for="rating_value">Rating</label>
+                                    <input type="number" class="form-control" name="rating_value" step="0.1" max="5" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="review">Review</label>
+                                    <textarea class="form-control" name="review" rows="3" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Submit Review</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 <%- include ('../partials/footer') %>
