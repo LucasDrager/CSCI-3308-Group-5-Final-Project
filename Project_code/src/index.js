@@ -6,7 +6,7 @@ const express = require('express'); // To build an application server or API
 const app = express();
 const pgp = require('pg-promise')(); // To connect to the Postgres DB from the node server
 const bodyParser = require('body-parser');
-const session = require('express-session'); // To set the session object. To store or access session data, use the `req.session`, which is (generally) serialized as JSON by the store.
+const session = require('express-session'); // To set the session object. To store or access session data, use the `req.session`, which is (generally) serialized as JSON by the store. 
 const bcrypt = require('bcrypt'); //  To hash passwords
 
 // *****************************************************
@@ -159,6 +159,126 @@ app.get("/logout", (req, res) => {
 app.get("/settings", (req, res) => {
   res.render("pages/settings")
 });
+
+// Settings API Calls
+app.post("/uploadIMG", async (req, res) => {
+  
+});
+
+app.post("/change_username", async (req, res) => {
+  try {
+    const { newUsername } = req.body;
+    const { username } = req.session; // Use req.session for accessing the current user's username
+
+    // Update the username in the database
+    const result = await db.query(
+      "UPDATE users SET username = $1 WHERE username = $2 RETURNING *",
+      [newUsername, username]
+    );
+
+    if (result.length > 0) {
+      const updatedUser = result[0];
+      // Update the session with the new username
+      req.session.username = updatedUser.username;
+      res.redirect("/settings");
+    } else {
+      res.status(404).json({ success: false, message: "User not found" });
+    }
+  } catch (error) {
+    console.error("Error changing username:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+app.post("/change_password", async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const { username } = req.session;
+
+    // Fetch the user's data from the database
+    const userData = await db.oneOrNone('SELECT * FROM users WHERE username = $1', [username]);
+
+    // If the user exists
+    if (userData) {
+      const passwordMatch = await bcrypt.compare(currentPassword, userData.password);
+
+      // If the current password matches
+      if (passwordMatch) {
+        // Hash the new password
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update the user's password in the database
+        await db.none('UPDATE users SET password = $1 WHERE username = $2', [hashedNewPassword, username]);
+
+        res.redirect("/settings");
+      } else {
+        res.status(401).json({ success: false, message: 'Current password is incorrect' });
+      }
+    } else {
+      res.status(404).json({ success: false, message: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error changing password:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+async function deleteUser(username) {
+  try {
+    // Delete related data in the friends table
+    await db.none('DELETE FROM friends WHERE user_a = $1 OR user_b = $1', [username]);
+
+    // Delete related data in the trip and passengers tables
+    await db.none('DELETE FROM passengers WHERE passenger = $1', [username]);
+    await db.none('DELETE FROM trip WHERE driverID = $1', [username]);
+
+    // Delete related data in the messaging table
+    await db.none('DELETE FROM messaging WHERE sender_id = $1 OR receiver_id = $1', [username]);
+
+    // Delete related data in the transactions table
+    await db.none('DELETE FROM transactions WHERE sender_id = $1 OR receiver_id = $1', [username]);
+
+    // Finally, delete the user from the users table
+    await db.none('DELETE FROM users WHERE username = $1', [username]);
+
+    console.log(`User ${username} and related data (excluding ratings) deleted successfully`);
+  } catch (error) {
+    console.error('Error deleting user and related data:', error);
+  }
+};
+
+app.post("/deletion", async (req, res) => {
+  try {
+    const { confirmDelete } = req.body;
+    const { username } = req.session; // Assuming you store the username in the session
+
+    // Fetch the user's data from the database
+    const userData = await db.oneOrNone('SELECT * FROM users WHERE username = $1', [username]);
+
+    // If the user exists
+    if (userData) {
+      // Check if the confirmation text matches
+      if (confirmDelete === 'DELETE') {
+        // Perform deletion actions here (excluding ratings)
+        await deleteUser(username);
+
+        // Destroy the session after successful deletion
+        req.session.destroy();
+
+        // Redirect to the register page after successful deletion
+        res.redirect("/register");
+      } else {
+        res.status(400).json({ success: false, message: 'Confirmation text is incorrect' });
+      }
+    } else {
+      res.status(404).json({ success: false, message: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error deleting account:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+// END Settings API Calls
 
 // Profile Page GET API call
 app.get("/profile", (req, res) => {
