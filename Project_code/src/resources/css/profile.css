@@ -55,3 +55,12 @@ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 text-align: left;
 margin-bottom: 40px
 }
+
+.rating-container{
+    position: fixed;
+    left: 40%;
+    top: 80%;
+    transform: translateY(-50%);
+    width: 55%;
+    padding: 20px;
+}

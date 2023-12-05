@@ -150,6 +150,78 @@ const auth = (req, res, next) => {
 
 app.use(auth);
 
+
+app.get('/recent-transactions', async (req, res) => {
+  try {
+    const query = `
+      SELECT * 
+      FROM transactions 
+      WHERE sender_id = $1 OR receiver_id = $1 
+      ORDER BY transaction_date DESC 
+      LIMIT 10
+    `;
+
+    const result = await db.query(query, [req.session.username]);
+    console.log(result);
+
+    if (result == undefined) {
+      return res.render('pages/transactions', { result: undefined, error: 'No recent transactions found.' });
+    }
+
+    res.render('pages/transactions', { transactions: result, error: undefined });
+  } catch (error) {
+    console.error('Error fetching recent transactions:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+app.get('/payment/:username', (req, res) => {
+
+  const data = {
+    value: req.query.value || '10.00',
+    client_id: process.env.client_id,
+    recipient: req.query.recipient || 'recipient@example.com',
+    username: req.params.username, 
+  };
+  res.render('pages/payment', { data });
+});
+
+
+app.post('/add_transaction', async (req, res) => {
+  const transaction_date = new Date();
+
+  try {
+    const senderQuery = 'SELECT password FROM users WHERE username = $1';
+    const senderResult = await db.oneOrNone(senderQuery, [req.session.username]);
+
+    if (!senderResult) {
+      res.status(404).send('Sender not found');
+      return;
+    }
+    const isPasswordMatch = await bcrypt.compare(req.body.sender_password, senderResult.password);
+
+    if (!isPasswordMatch) {
+      res.status(401).send('Invalid password');
+      return;
+    }
+
+    const query = `
+      INSERT INTO transactions (sender_id, receiver_id, amount, description, transaction_date)
+      VALUES ($1, $2, $3, $4, $5)
+    `;
+
+    await db.none(query, [sender_username, receiver_id, amount, description, transaction_date]);
+    
+    res.status(200).send('Transaction added successfully');
+  } catch (error) {
+    console.error('Error adding transaction', error);
+    res.status(500).send('Error adding transaction');
+  }
+});
+
+
+
 //log out get call
 app.get("/logout", (req, res) => {
   req.session.destroy();
@@ -240,6 +312,23 @@ app.post("/change_password", async (req, res) => {
   }
 });
 
+//User page get call
+app.get("/users", async (req, res) => {
+  try {
+    // Fetch the user's data from the database
+    const userData = await db.any('SELECT * FROM users');
+    // If any users exist
+    if (userData) {
+      res.render("pages/users.ejs", { users : userData });
+    } else {
+      res.status(404).json({ success: false, message: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error finding profile:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 async function deleteUser(username) {
   try {
     // Delete related data in the friends table
@@ -297,17 +386,40 @@ app.post("/deletion", async (req, res) => {
 });
 // END Settings API Calls
 
-// Profile Page GET API call
+// Profile Page GET API Redirect
 app.get("/profile", (req, res) => {
-  const usernameQuery = 'SELECT * FROM users WHERE users.username = $1'
-  db.any(usernameQuery, [req.session.user])
-  .then((users) => {
-    res.render('pages/profile', { users: users})
-  })
-  .catch((err) => {
-    console.log(err);
-    res.redirect('/error');
-  });
+  res.redirect("/profile/" + req.session.username);
+});
+
+// Profile Page GET API call
+app.get("/profile/:username", async (req, res) => {
+  try {
+    // Fetch the user's data from the database
+    const userSession = req.session.username;
+    const userData = await db.oneOrNone('SELECT * FROM users WHERE username = $1', [req.params.username]);
+    const userRatings = await db.any('SELECT * FROM ratings WHERE ratee_id = $1', [req.params.username]);
+    // If the user exists
+    if (userData) {
+      res.render("pages/profile.ejs", { user : userData , ratings : userRatings, activeUser : userSession});
+    } else {
+      res.status(404).json({ success: false, message: 'User not found' });
+    }
+  } catch (error) {
+    console.error('Error finding profile:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// Add Review POST Call
+app.post('/add_review', async (req, res) => {
+  try{
+    const values = [req.session.username, req.body.ratee_id, req.body.rating_value, req.body.review];
+    await db.none('INSERT INTO ratings (rater_id, ratee_id, rating_value, rated_at, review) VALUES ($1, $2, $3, NOW(), $4)', values);
+    res.redirect('/profile/' + req.body.ratee_id);
+  } catch (error) {
+    console.error('Error adding review:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
 });
 
 // Lab 11 test call
