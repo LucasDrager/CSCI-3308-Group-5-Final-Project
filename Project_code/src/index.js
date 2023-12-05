@@ -69,7 +69,7 @@ app.get('/welcome', (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.render("pages/login", { showSignUpPanel: false });
+  res.render("pages/messaging", { showSignUpPanel: false });
 });
 
 //Login Get call
@@ -85,6 +85,85 @@ app.get("/login", (req,res) => {
 app.get("/register", (req,res) => {
   res.render("pages/login", { showSignUpPanel: true });
 });
+app.get("/chats", async (req, res) => {
+
+  // const chatsData = `SELECT * FROM chats WHERE chats.user1 = ${req.session.user};`;
+   const chatsData2 = `SELECT * FROM chats WHERE chats.user2 = 'a';`;
+ 
+  
+   await db.any(chatsData2,[req.session.user])
+   .then((chatsData2) => {
+     res.json(chatsData2);
+    // return res.status(200);
+   })
+   .catch((err) => {
+     console.log(err);
+     res.status(500).json({ error: 'Internal Server Error' });
+     //console.log('fetched response 3');
+    // res.redirect("/messages");
+   });
+ 
+ 
+ 
+ });
+ 
+ app.get("/messageLoad", async (req, res) => {
+
+  res.render("pages/messaging.ejs");
+ }
+ 
+ 
+ );
+ 
+ app.post('/messages1', async (req, res) => {
+ 
+   const { chats_id, sender, message_text } = req.body;
+   
+   console.log('fetched response 100');
+   console.log('fetched response');
+   // SQL query to insert the message into the database
+   const query = `INSERT INTO messages (chats_id, sender, message_text) VALUES (${chats_id}, '${sender}', '${message_text}');`
+   // Execute the query
+   console.log('fetched response 123');
+   await db.any(query).then((data) => {
+     console.log('fetched response 1234');
+     console.log(data);
+     console.log('fetched response 12345');
+     res.redirect("/messages");
+   })
+ });
+ 
+ // Route to fetch messages for a specific chat
+ app.get("/messages", async (req, res) => {
+   //console.log('fetched response');
+ 
+   const chatID = req.query.chats_id;
+ 
+   console.log('fetched response 1000');
+   console.log(chatID);
+   
+ 
+ 
+ 
+   const messageData = `SELECT * FROM messages WHERE messages.chats_id = 1;`;
+   console.log('fetched response 1');
+   await db.any(messageData,[req.session.user])
+   .then((messageData) => {
+     console.log('fetched response 2');
+ 
+     console.log(messageData);
+     console.log('fetched response 3');
+     res.json(messageData);
+    // return res.status(200);
+   })
+   .catch((err) => {
+     console.log(err);
+     res.status(500).json({ error: 'Internal Server Error' });
+     //console.log('fetched response 3');
+    // res.redirect("/messages");
+   });
+ });
+ 
 
 //Login post call
 app.post("/login", async (req, res) => {
