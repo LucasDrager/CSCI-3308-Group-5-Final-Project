@@ -1,0 +1,78 @@
+
+
+<!-- Your HTML file -->
+<%- include ('../partials/header') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paying for trips</title>
+  <link rel="stylesheet" href="../../resources/css/payment.css">
+</head>
+<body>
+
+  <!-- Centered container with a shadow box -->
+  <div class="container">
+    <div class="box">
+    <h3>Paying for trip to <%= data.recipient %></h3>
+
+      <!-- Use the data passed from the server-side -->
+      <script>
+        var client_id = '<%= data.client_id %>';
+        var link = `https://www.paypal.com/sdk/js?client-id=${client_id}`;
+      </script>
+
+      <!-- Dynamically create the PayPal Script with dynamic data -->
+
+      <script>
+        var scriptElement = document.createElement('script');
+        scriptElement.src = link;
+        document.body.appendChild(scriptElement);
+
+        scriptElement.onload = function() {
+            document.body.appendChild(scriptElement); // Not sure if this is right, need to consult documentation again for this.
+
+          paypal.Buttons({
+            createOrder: function (data, actions) {
+              return actions.order.create({
+                purchase_units: [{
+                  amount: {
+                    value: '<%= data.value %>'
+                  },
+                  payee: {
+                    email_address: '<%= data.recipient %>'
+                  }
+                }]
+              });
+            },
+            onApprove: function (data, actions) {
+              return actions.order.capture().then(function (details) {
+
+                fetch('/add_transaction', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                })
+                .then(response => response.text())
+                .then(result => {
+                  console.log(result);
+                  alert('Transaction completed by ' + details.payer.name.given_name);
+                })
+                .catch(error => {
+                  console.error('Error adding transaction', error);
+                  alert('Error adding transaction');
+                });
+              });
+            }
+          }).render('body');
+        };
+      </script>
+    </div>
+  </div>
+
+</body>
+</html>
+
+<%- include ('../partials/footer') %>

@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS trip (
   driverID varchar(50) REFERENCES users(username),
   destination varchar(255),
   original_location varchar(255),
-  active boolean
+  active boolean,
+  payment_req boolean
 );
 
 -- Create the passengers table
