@@ -91,7 +91,7 @@ app.get("/chats", async (req, res) => {
    const chatsData2 = `SELECT * FROM chats WHERE chats.user2 = 'a';`;
  
   
-   await db.any(chatsData2,[req.session.user])
+   await db.any(chatsData2,[req.session.username])
    .then((chatsData2) => {
      res.json(chatsData2);
     // return res.status(200);
@@ -116,13 +116,13 @@ app.get("/chats", async (req, res) => {
  );
  
  app.post('/messages1', async (req, res) => {
- 
+  console.log(req.body);
    const { chats_id, sender, message_text } = req.body;
    
    console.log('fetched response 100');
    console.log('fetched response');
    // SQL query to insert the message into the database
-   const query = `INSERT INTO messages (chats_id, sender, message_text) VALUES (${chats_id}, '${sender}', '${message_text}');`
+   const query = `INSERT INTO messages (chatID, sender, message_text) VALUES ('${chats_id}', '${sender}', '${message_text}');`
    // Execute the query
    console.log('fetched response 123');
    await db.any(query).then((data) => {
@@ -130,7 +130,12 @@ app.get("/chats", async (req, res) => {
      console.log(data);
      console.log('fetched response 12345');
      res.redirect("/messages");
-   })
+   }).catch((err) => {
+    console.log(err);
+    res.status(500).json({ error: 'Internal Server Error' });
+    console.log('fetched response 3');
+    res.redirect("/messages");
+  });
  });
  
  // Route to fetch messages for a specific chat
@@ -145,9 +150,9 @@ app.get("/chats", async (req, res) => {
  
  
  
-   const messageData = `SELECT * FROM messages WHERE messages.chats_id = 1;`;
+   const messageData = `SELECT * FROM messages WHERE messages.chatid = $1;`;
    console.log('fetched response 1');
-   await db.any(messageData,[req.session.user])
+   await db.any(messageData,[req.session.username])
    .then((messageData) => {
      console.log('fetched response 2');
  
@@ -229,6 +234,12 @@ const auth = (req, res, next) => {
 
 app.use(auth);
 
+//log out get call
+app.get("/logout", (req, res) => {
+  req.session.destroy();
+  res.render("pages/login", { showSignUpPanel: false });
+});
+
 
 app.get('/recent-transactions', async (req, res) => {
   try {
@@ -297,14 +308,6 @@ app.post('/add_transaction', async (req, res) => {
     console.error('Error adding transaction', error);
     res.status(500).send('Error adding transaction');
   }
-});
-
-
-
-//log out get call
-app.get("/logout", (req, res) => {
-  req.session.destroy();
-  res.render("pages/login", { showSignUpPanel: false });
 });
 
 // Settings GET API call
