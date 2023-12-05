@@ -1,0 +1,65 @@
+<%- include ('../partials/header') %>
+<!-- views/recent-transactions.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recent Transactions</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../resources/css/transactions.css">
+
+</head>
+<body>
+
+  <div class="container mt-5">
+    <% if (error) { %>
+      <div class="alert alert-danger" role="alert">
+        <%= error %>
+      </div>
+    <% } else { %>
+
+      <h1 class="mb-4">Recent Transactions</h1>
+
+      <% if (transactions.length > 0) { %>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Sender</th>
+              <th scope="col">Receiver</th>
+              <th scope="col">Amount</th>
+              <th scope="col">Description</th>
+              <th scope="col">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% transactions.forEach((transaction, index) => { %>
+              <tr>
+                <th scope="row"><%= index + 1 %></th>
+                <td><%= transaction.sender_id %></td>
+                <td><%= transaction.receiver_id %></td>
+                <td>$<%= transaction.amount %></td>
+                <td><%= transaction.description %></td>
+                <td><%= transaction.transaction_date.toISOString().split('T')[0] %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <p>No recent transactions found.</p>
+      <% } %>
+
+    <% } %>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>
+
+
+
+<%- include ('../partials/footer') %>

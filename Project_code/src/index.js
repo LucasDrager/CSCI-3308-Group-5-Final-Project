@@ -150,6 +150,78 @@ const auth = (req, res, next) => {
 
 app.use(auth);
 
+
+app.get('/recent-transactions', async (req, res) => {
+  try {
+    const query = `
+      SELECT * 
+      FROM transactions 
+      WHERE sender_id = $1 OR receiver_id = $1 
+      ORDER BY transaction_date DESC 
+      LIMIT 10
+    `;
+
+    const result = await db.query(query, [req.session.username]);
+    console.log(result);
+
+    if (result == undefined) {
+      return res.render('pages/transactions', { result: undefined, error: 'No recent transactions found.' });
+    }
+
+    res.render('pages/transactions', { transactions: result, error: undefined });
+  } catch (error) {
+    console.error('Error fetching recent transactions:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+app.get('/payment/:username', (req, res) => {
+
+  const data = {
+    value: req.query.value || '10.00',
+    client_id: process.env.client_id,
+    recipient: req.query.recipient || 'recipient@example.com',
+    username: req.params.username, 
+  };
+  res.render('pages/payment', { data });
+});
+
+
+app.post('/add_transaction', async (req, res) => {
+  const transaction_date = new Date();
+
+  try {
+    const senderQuery = 'SELECT password FROM users WHERE username = $1';
+    const senderResult = await db.oneOrNone(senderQuery, [req.session.username]);
+
+    if (!senderResult) {
+      res.status(404).send('Sender not found');
+      return;
+    }
+    const isPasswordMatch = await bcrypt.compare(req.body.sender_password, senderResult.password);
+
+    if (!isPasswordMatch) {
+      res.status(401).send('Invalid password');
+      return;
+    }
+
+    const query = `
+      INSERT INTO transactions (sender_id, receiver_id, amount, description, transaction_date)
+      VALUES ($1, $2, $3, $4, $5)
+    `;
+
+    await db.none(query, [sender_username, receiver_id, amount, description, transaction_date]);
+    
+    res.status(200).send('Transaction added successfully');
+  } catch (error) {
+    console.error('Error adding transaction', error);
+    res.status(500).send('Error adding transaction');
+  }
+});
+
+
+
 //log out get call
 app.get("/logout", (req, res) => {
   req.session.destroy();
