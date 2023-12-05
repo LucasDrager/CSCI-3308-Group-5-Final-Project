@@ -62,3 +62,11 @@ CREATE TABLE IF NOT EXISTS transactions (
   description varchar(255),
   transaction_date timestamp
 );
+
+-- Create the trip_to_users table
+CREATE TABLE IF NOT EXISTS trip_to_users (
+    user_id varchar(50),
+    trip_id integer,
+    FOREIGN KEY (user_id) REFERENCES users(username),
+    FOREIGN KEY (trip_id) REFERENCES trip(trip_id)
+);

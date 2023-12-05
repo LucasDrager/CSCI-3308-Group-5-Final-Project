@@ -5,7 +5,7 @@ function toggle_visibility(id,trip_id,driver_id,destination,original_location){
     document.getElementById("TripDriver").innerHTML = driver_id;
     document.getElementById("LocationTo").innerHTML = destination;
     document.getElementById("LocationFrom").innerHTML = original_location;
-    document.getElementById("Attendees").innerHTML = getPassengers(trip_id);
+    getPassengers(trip_id).then(num => document.getElementById("Attendees").innerHTML = num);
     let mapDiv = document.getElementById("mapDiv")
     let mapElement = document.getElementById("map")
     if (mapElement === null){
@@ -24,23 +24,24 @@ function toggle_visibility(id,trip_id,driver_id,destination,original_location){
 }
 
 async function getPassengers(trip_id){
-    return await fetch(`/getPassengers/${trip_id}`, {method: "GET"})
-    .then((response) => {
-        return response.json();
+    let response;
+    let people = "";
+    let status; 
+    response = await fetch(`/trip/${trip_id}/passengers`)
+    .then((res) => { 
+        status = res.status; 
+        return res.json() 
     })
-    .then((data) => {
-        let passengers = data;
-        console.log(passengers);
-        length = passengers.length;
-        var temp="";
-        for(i=0;i<length-1;i++)
-        {
-            temp += passengers[i] + ", ";
-        }
-        temp += passengers[length];
-        return temp;
+    .then((jsonResponse) => {
+        return jsonResponse;
     })
     .catch((err) => {
-    console.log(err);
+        // handle error
+        console.error(err);
     });
+    for (let i = 0; i < response.data.length; i++) {
+        people += response.data[i].passenger+",";
+    }
+    console.log(people)
+    return people;
 }

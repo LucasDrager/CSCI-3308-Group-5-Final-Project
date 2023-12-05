@@ -50,6 +50,7 @@ app.use(
     resave: false,
   })
 );
+
 app.use('/resources', express.static('resources'));
 
 app.use(
@@ -66,10 +67,10 @@ app.use(
 app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
+
 app.get("/", (req, res) => {
   res.render("pages/login", { showSignUpPanel: false });
 });
-
 
 //Login Get call
 app.get("/login", (req,res) => {
@@ -84,7 +85,6 @@ app.get("/login", (req,res) => {
 app.get("/register", (req,res) => {
   res.render("pages/login", { showSignUpPanel: true });
 });
-
 
 //Login post call
 app.post("/login", async (req, res) => {
@@ -117,7 +117,6 @@ app.post("/login", async (req, res) => {
 //Register post call
 app.post("/register", async (req, res) => {
   let hash;
-
   bcrypt.genSalt(10, function(err, salt) {
     bcrypt.hash(req.body.password, salt, function(err, passHash) {
       hash = passHash;
@@ -317,14 +316,19 @@ app.get('/welcome', (req, res) => {
 });
 
 app.get("/homepage", (req, res) => {
-  const tripData = `SELECT trip.trip_id,trip.driverid,trip.destination,trip.original_location 
-  FROM trip INNER JOIN passengers ON trip.trip_id = passengers.trip_id 
-  INNER JOIN users ON users.username = passengers.passenger 
-  WHERE trip.active = TRUE 
-    AND (passengers.passenger != trip.driverid) 
-    AND ((passengers.passenger = $1) OR (trip.driverid = $1));`
-  db.any(tripData,[req.session.username])
+  // const tripData = `SELECT trip.trip_id,trip.driverid,trip.destination,trip.original_location 
+  // FROM trip INNER JOIN passengers ON trip.trip_id = passengers.trip_id 
+  // INNER JOIN users ON users.username = passengers.passenger 
+  // WHERE trip.active = TRUE 
+  //   AND (passengers.passenger != trip.driverid) 
+  //   AND ((passengers.passenger = $1) OR (trip.driverid = $1));`
+  const usertrips = `SELECT * FROM trip WHERE trip.driverid = $1;`;
+  const userJoinedTrips =`SELECT * FROM trip WHERE trip.trip_id IN (SELECT trip_id FROM passengers WHERE passengers.passenger = $1);`;
+  db.task('get-everything', task => {
+    return task.batch([task.any(usertrips,[req.session.username]), task.any(userJoinedTrips,[req.session.username])]);
+  })
   .then((data) => {
+    console.log(data);
     res.render("pages/homepage.ejs",{'Data':data,'User':req.session.username});
   })
   .catch((err) => {
@@ -337,7 +341,7 @@ app.delete("/CancelUserTrip/:Trip_id", (req,res) => {
   const deleteQuery = "DELETE FROM passengers WHERE trip_id = $1 AND passenger = $2;";
   db.any(deleteQuery,[req.params.Trip_id,req.session.username])
   .then((data) => {
-    console.log("Data deleteed successfully");
+    console.log("Data deleted successfully");
   })
   .catch((err) => {
     console.log(err);
@@ -349,22 +353,11 @@ app.delete("/CancelUserMadeTrip/:Trip_id", (req,res) => {
   const deleteQuery = "DELETE FROM passengers WHERE trip_id = $1; DELETE FROM trip WHERE trip_id = $1;";
   db.any(deleteQuery,[req.params.Trip_id])
   .then((data) => {
-    console.log("Data deleteed successfully");
+    console.log("Data deleted successfully");
   })
   .catch((err) => {
     console.log(err);
     res.redirect("homepage");
-  });
-});
-
-app.get("/getPassengers/:Trip_id", (req, res) => {
-  const passengerData = "SELECT passenger FROM passengers WHERE trip_id = $1"
-  db.any(passengerData,[req.params.Trip_id])
-  .then((data) => {
-    res.data = data
-  })
-  .catch((err) => {
-    console.log(err);
   });
 });
 
