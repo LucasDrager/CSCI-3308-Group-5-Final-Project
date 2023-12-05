@@ -1,31 +1,49 @@
 <%- include ('../partials/header') %>
-<main>
-    <h1>Settings</h1>
+    <main>
+        <h1>Settings</h1>
 
-    <script src="../../resources/js/settings.js"></script>
-    
-    Add feature to change profile picture here
+        <script src="../../resources/js/settings.js"></script>
+        <link rel="stylesheet" href="../../resources/css/settings.css">
 
-    <form id="changeUsername" action="/settings" method="POST">
-        <label for="newUsername">New Username:</label>
-        <input type="text" id="newUsername" name="newUsername" required>
-        <button type="submit">Change Username</button>
-    </form>
+        <div id="message-container"></div>
 
-    <form id="changePassword" action="/settings" method="POST">
-        <label for="currentPassword">Current Password:</label>
-        <input type="password" id="currentPassword" name="currentPassword" required>
-        
-        <label for="newPassword">New Password:</label>
-        <input type="password" id="newPassword" name="newPassword" required>
+        <div class="container">
+            <div class="">
+                <form id="changeProfileIMG" action="/uploadIMG" method="POST" enctype="multipart/form-data">
+                    <label for="profileImage">Upload a Profile Image</label>
+                    <input type="file" name="profileImage" id="profileImage" accept="image/*">
+                    <br>
+                    <input type="submit" value="Upload">
+                </form>
+            </div>
 
-        <button type="submit">Change Password</button>
-    </form>
+            <div class="">
+                <form id="changeUsername" action="/change_username" method="POST" onsubmit="return handleChangeUsername()">
+                    <label for="newUsername">New Username:</label>
+                    <input type="text" id="newUsername" name="newUsername" required>
+                    <button type="submit">Change Username</button>
+                </form>
+            </div>
 
-    <form id="deleteAccount" action="/settings" method="POST" onsubmit="return confirmDelete()">
-        <label for="confirmDelete">Type 'DELETE' to confirm:</label>
-        <input type="text" id="confirmDelete" name="confirmDelete" required>
-        <button type="submit">Delete Account</button>
-    </form>
-</main>
-<%- include ('../partials/footer') %>
+            <div class="">
+                <form id="changePassword" action="/change_password" method="POST" onsubmit="return handleChangePassword()">
+                    <label for="currentPassword">Current Password:</label>
+                    <input type="password" id="currentPassword" name="currentPassword" required>
+
+                    <label for="newPassword">New Password:</label>
+                    <input type="password" id="newPassword" name="newPassword" required>
+
+                    <button type="submit">Change Password</button>
+                </form>
+            </div>
+
+            <div class="">
+                <form id="deleteAccount" action="/deletion" method="POST" onsubmit="return confirmDelete()">
+                    <label for="confirmDelete">Type 'DELETE' to confirm:</label>
+                    <input type="text" id="confirmDelete" name="confirmDelete" required>
+                    <button type="submit">Delete Account</button>
+                </form>
+            </div>
+        </div>
+    </main>
+    <%- include ('../partials/footer') %>
