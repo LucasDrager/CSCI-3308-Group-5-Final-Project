@@ -81,16 +81,14 @@ app.get("/login", (req,res) => {
   res.render("pages/login", { showSignUpPanel: false });
 });
 
-//Login Get call
+//Register Get call
 app.get("/register", (req,res) => {
   res.render("pages/login", { showSignUpPanel: true });
 });
-app.get("/chats", async (req, res) => {
 
+app.get("/chats", async (req, res) => {
   // const chatsData = `SELECT * FROM chats WHERE chats.user1 = ${req.session.user};`;
    const chatsData2 = `SELECT * FROM chats WHERE chats.user2 = 'a';`;
- 
-  
    await db.any(chatsData2,[req.session.username])
    .then((chatsData2) => {
      res.json(chatsData2);
@@ -102,23 +100,15 @@ app.get("/chats", async (req, res) => {
      //console.log('fetched response 3');
     // res.redirect("/messages");
    });
- 
- 
- 
  });
  
  app.get("/messageLoad", async (req, res) => {
-
   res.render("pages/messaging.ejs");
- }
- 
- 
- );
+ });
  
  app.post('/messages1', async (req, res) => {
   console.log(req.body);
    const { chats_id, sender, message_text } = req.body;
-   
    console.log('fetched response 100');
    console.log('fetched response');
    // SQL query to insert the message into the database
@@ -137,25 +127,18 @@ app.get("/chats", async (req, res) => {
     res.redirect("/messages");
   });
  });
- 
+
  // Route to fetch messages for a specific chat
  app.get("/messages", async (req, res) => {
    //console.log('fetched response');
- 
    const chatID = req.query.chats_id;
- 
    console.log('fetched response 1000');
    console.log(chatID);
-   
- 
- 
- 
    const messageData = `SELECT * FROM messages WHERE messages.chatid = $1;`;
    console.log('fetched response 1');
    await db.any(messageData,[req.session.username])
    .then((messageData) => {
      console.log('fetched response 2');
- 
      console.log(messageData);
      console.log('fetched response 3');
      res.json(messageData);
@@ -176,9 +159,7 @@ app.post("/login", async (req, res) => {
     const usernameQuery = `SELECT * FROM users WHERE users.username = $1`;
     const data = await db.one(usernameQuery, [req.body.username]);
     const password = data.password;
-
     const match = await bcrypt.compare(req.body.password, password);
-
     if (match) {
       // Authentication successful
       req.session.username = req.body.username;
@@ -194,7 +175,6 @@ app.post("/login", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.render("pages/login", { showSignUpPanel: false, message: "User does not exist"});
-
   }
 });
 
