@@ -96,7 +96,250 @@ app.get("/login", (req, res) => {
 app.get("/register", (req, res) => {
   res.render("pages/login", { showSignUpPanel: true });
 });
+ 
+ app.get("/username", async (req, res) => {
+  await db.oneOrNone('SELECT * FROM users WHERE username = $1', [req.params.username]);
+  res.json({ status: 'success', data: userData });
+ });
+ app.get("/messageLoad", async (req, res) => {
+  res.render("pages/messaging.ejs");
+ });
+ 
+ app.post('/messages1', async (req, res) => {
+ 
+   const { chats_id, sender, message_text,reciever,sent_at } = req.body;
+   
+   // SQL query to insert the message into the database
 
+   const query = `INSERT INTO messages (chats_id, sender, message_text,reciever,sent_at) VALUES ('${chats_id}', '${req.session.username}', '${message_text}','${reciever}','${sent_at}');`
+   // Execute the query
+   await db.any(query).then((data) => {
+    // res.redirect("/messages");
+   })
+ });
+ 
+ // Route to fetch messages for a specific chat
+ app.get("/messages/1", async (req, res) => {
+   //console.log('fetched response');
+ 
+   
+   
+ 
+ 
+ 
+   const messageData = `SELECT * FROM messages WHERE messages.chats_id = 1;`;
+   await db.any(messageData,[req.session.user])
+   .then((messageData) => {
+ 
+     res.json(messageData);
+    // return res.status(200);
+   })
+   .catch((err) => {
+     console.log(err);
+     res.status(500).json({ error: 'Internal Server Error' });
+     //console.log('fetched response 3');
+    // res.redirect("/messages");
+   });
+ });
+
+  // Route to fetch messages for a specific chat
+  app.get("/messages/2", async (req, res) => {
+    //console.log('fetched response');
+  
+  
+    
+  
+  
+  
+    const messageData = `SELECT * FROM messages WHERE messages.chats_id = 2;`;
+    await db.any(messageData,[req.session.user])
+    .then((messageData) => {
+  
+      console.log(messageData);
+      res.json(messageData);
+     // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+     // res.redirect("/messages");
+    });
+  });
+  
+  app.get("/messages/3", async (req, res) => {
+    //console.log('fetched response');
+  
+    const chatID = req.query.chats_id;
+  
+    console.log(chatID);
+    
+  
+  
+  
+    const messageData = `SELECT * FROM messages WHERE messages.chats_id = 3;`;
+    await db.any(messageData,[req.session.user])
+    .then((messageData) => {
+  
+      res.json(messageData);
+     // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+     // res.redirect("/messages");
+    });
+  });
+
+  app.get("/messages/4", async (req, res) => {
+    //console.log('fetched response');
+  
+    const chatID = req.query.chats_id;
+  
+    
+  
+  
+  
+    const messageData = `SELECT * FROM messages WHERE messages.chats_id = 4;`;
+    await db.any(messageData,[req.session.user])
+    .then((messageData) => {
+  
+      console.log(messageData);
+      res.json(messageData);
+     // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+     // res.redirect("/messages");
+    });
+  });
+
+  app.get("/messages/5", async (req, res) => {
+    //console.log('fetched response');
+  
+    const chatID = req.query.chats_id;
+  
+    
+  
+  
+  
+    const messageData = `SELECT * FROM messages WHERE messages.chats_id = 5;`;
+    await db.any(messageData,[req.session.user])
+    .then((messageData) => {
+  
+      res.json(messageData);
+     // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+     // res.redirect("/messages");
+    });
+  });
+
+  app.get("/messages/6", async (req, res) => {
+    //console.log('fetched response');
+  
+    const chatID = req.query.chats_id;
+  
+    
+  
+  
+  
+    const messageData = `SELECT * FROM messages WHERE messages.chats_id = 6;`;
+    await db.any(messageData,[req.session.user])
+    .then((messageData) => {
+  
+      res.json(messageData);
+     // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+     // res.redirect("/messages");
+    });
+  });
+
+  app.get("/messages/7", async (req, res) => {
+    //console.log('fetched response');
+  
+    const chatID = req.query.chats_id;
+  
+    
+  
+  
+  
+    const messageData = `SELECT * FROM messages WHERE messages.chats_id = 7;`;
+    await db.any(messageData,[req.session.user])
+    .then((messageData) => {
+  
+      res.json(messageData);
+     // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+     // res.redirect("/messages");
+    });
+  });
+
+  app.get("/messages/8", async (req, res) => {
+    //console.log('fetched response');
+  
+    const chatID = req.query.chats_id;
+  
+    
+  
+  
+  
+    const messageData = `SELECT * FROM messages WHERE messages.chats_id = 8;`;
+    await db.any(messageData,[req.session.user])
+    .then((messageData) => {
+  
+      res.json(messageData);
+     // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+     // res.redirect("/messages");
+    });
+  });
+
+  app.get("/messages/9", async (req, res) => {
+    //console.log('fetched response');
+  
+    const chatID = req.query.chats_id;
+  
+    
+  
+  
+  
+    const messageData = `SELECT * FROM messages WHERE messages.chats_id = 9;`;
+    await db.any(messageData,[req.session.user])
+    .then((messageData) => {
+  
+      res.json(messageData);
+     // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+     // res.redirect("/messages");
+    });
+  });
+ 
+ 
+
+//Login post call
 
 app.post("/login", async (req, res) => {
   try {
@@ -139,7 +382,7 @@ app.post("/register", async (req, res) => {
     bcrypt.hash(req.body.password, salt, function (err, passHash) {
       hash = passHash;
 
-      const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at) VALUES ($1, $2, $3, $4, $5, $6);";
+      const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at, trips_taken) VALUES ($1, $2, $3, $4, $5, $6, 0);";
       const values = [req.body.username, hash, req.body.first_name, req.body.last_name, req.body.email, new Date()];
 
       if (err) {
@@ -214,7 +457,6 @@ app.get("/logout", (req, res) => {
 });
 
 app.get("/chats", async (req, res) => {
-
   // const chatsData = `SELECT * FROM chats WHERE chats.user1 = ${req.session.user};`;
   const chatsData2 = `SELECT * FROM chats WHERE chats.user2 = 'a';`;
 
@@ -674,31 +916,27 @@ app.get("/createTrip", (req, res) => {
 //Create a trip:
 
 app.post("/trip", (req, res) => {
-  const query = "INSERT INTO trip (driverID, destination, original_location, active, payment_req) VALUES ($1, $2, $3, $4, $5);";
-  //REMOVE COMMENT. Attempt to use both session variable and variable from page.
-  db.none(query, [req.session.username, req.body.destination, req.body.original_location, true, req.body.payment_req])
+
+  const query = "INSERT INTO trip (driverID, destination, original_location, active, payment_req, leaving_time, nickname) VALUES ($1, $2, $3, $4, $5, $6, $7);";
+  db.none(query, [req.session.username, req.body.destination, req.body.original_location, req.body.active, req.body.payment_req, req.body.leaving_time, req.body.nickname])
     .then(() => {
-      // res.json({ status: 'success', message: 'Trip created successfully' });
       console.log('Trip created successfully');
     })
     .catch(err => {
       console.log(err);
-      // res.json({ status: 'error', message: 'Failed to update trip' });
     });
 });
 
 //Edit trip details:
 
 app.put("/trip/:trip_id", (req, res) => {
-  const query = "UPDATE trip SET driverID = $1, destination = $2, original_location = $3 WHERE trip_id = $4;";
-  db.none(query, [req.session.username, req.body.destination, req.body.original_location, req.params.trip_id])
+  const query = "UPDATE trip SET driverID = $1, destination = $2, original_location = $3, active = $4, payment_req = $5, leaving_time = $6, nickname = $7 WHERE trip_id = $8;"; 
+  db.none(query, [req.session.username, req.body.destination, req.body.original_location, req.body.active, req.body.payment_req, req.body.leaving_time, req.body.nickname, req.params.trip_id])
     .then(() => {
-      // res.json({ status: 'success', message: 'Trip updated successfully' });
       console.log('Trip updated successfully');
     })
     .catch(err => {
       console.log(err);
-      // res.json({ status: 'error', message: 'Failed to update trip' });
     });
 });
 
@@ -709,6 +947,7 @@ app.post("/trip/:trip_id/passenger", (req, res) => {
   const query = "INSERT INTO passengers (trip_id, passenger) VALUES ($1, $2);";
   db.none(query, [req.params.trip_id, req.body.passenger])
     .then(() => {
+      console.log('Trip joined successfully');
       res.json({ status: 'success', message: 'Passenger added successfully' });
     })
     .catch(err => {
@@ -756,6 +995,31 @@ app.delete("/trip/:trip_id", async (req, res) => {
   }
 });
 
+// Get all trips
+
+app.get("/alltrips", async (req, res) => {
+  const query = "SELECT * FROM trip;";
+  try {
+    const trips = await db.any(query);
+    res.json({ status: 'success', data: trips });
+  } catch (err) {
+    console.log(err);
+    res.json({ status: 'error', message: 'Failed to fetch trips' });
+  }
+});
+
+// Render joinTrip page
+
+app.get("/joinTrip", async (req, res) => {
+  const query = "SELECT * FROM trip;";
+  try {
+    const trips = await db.any(query);
+    res.render("pages/joinTrip.ejs", { trips: trips, username: req.session.username });
+  } catch (err) {
+    console.log(err);
+    res.redirect("homepage");
+  }
+});
 // *****************************************************
 // <!-- Section 5 : Start Server-->
 // *****************************************************

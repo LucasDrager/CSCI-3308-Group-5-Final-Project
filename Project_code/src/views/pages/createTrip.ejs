@@ -1,7 +1,5 @@
-<%- include ('../partials/header') %>
-<header>
-  <h1>Trips</h1>
-</header>
+<%- include('../partials/header') %>
+<%- include('../partials/menu') %> 
 <head>
   <link rel="stylesheet" href="../../resources/css/createTrip.css">
 </head>
@@ -15,11 +13,17 @@
         <h1 class="text-center my-4">Create a Trip</h1>
         <form id="tripForm" class="needs-validation" novalidate>
           <div class="form-group pb-3">
+
+            <div class="form-group pb-3">
+              <label for="nickname">Trip Name</label>
+              <input type="text" class="form-control" id="nickname" name="nickname" required/>      
+              <div class="invalid-feedback">Please provide a name for your trip.</div>
+            </div>
+
             <label for="destination">Destination</label>
             <input type="text" class="form-control" id="destination" name="destination" required/>
             <div class="invalid-feedback">Please provide a destination.</div>
           </div>
-
 
           <div class="form-group pb-3">
             <label for="original_location">Starting Location</label>
@@ -35,6 +39,19 @@
             <span class="text">Require Payment?</span>
           </div>
 
+
+          <div class="form-group pb-3">
+            <label for="active">Active</label>
+            <input type="checkbox" class="formcheckbox" id="active" name="active" required/>      
+            <div class="invalid-feedback"></div>
+          </div>
+          
+          <div class="form-group pb-3">
+            <label for="leaving_time">Leaving Time</label>
+            <input type="datetime-local" class="form-control" id="leaving_time" name="leaving_time" required/>
+            <div class="invalid-feedback">Please provide a leaving time.</div>
+          </div>
+         
           <button type="submit" class="btn btn-primary">Submit</button>
         </form>
       </div>
@@ -42,7 +59,7 @@
     <div id="addedTripInfo" class="mt-4">
     </div>
   </div>
-  <div class="card mt-4" id="create_trip">
+  <div class="card mt-4" id="your_trips">
     <div class="card-body">
       <h1 class="text-center my-4">Your Trips</h1>
       <div id="tripList">
@@ -63,6 +80,13 @@
         </div>
         <div class="modal-body">
           <form id="editTripForm" class="needs-validation" novalidate>
+
+            <div class="form-group pb-3">
+              <label for="nickname">Trip Name</label>
+              <input type="text" class="form-control" id="editnickname" name="nickname" required/>      
+              <div class="invalid-feedback">Please provide a name for your trip.</div>
+            </div>
+
             <div class="form-group pb-3">
               <label for="editDestination">Destination</label>
               <input type="text" class="form-control" id="editDestination" name="destination" required/>
@@ -73,6 +97,24 @@
               <label for="editOriginalLocation">Starting Location</label>
               <input type="text" class="form-control" id="editOriginalLocation" name="original_location" required/>
               <div class="invalid-feedback">Please provide an original location.</div>
+            </div>
+
+            <div class="form-group pb-3">
+              <label for="active">Active</label>
+              <input type="checkbox" class="formcheckbox" id="editactive" name="active" required/>      
+              <div class="invalid-feedback"></div>
+            </div>
+            
+            <div class="form-group pb-3">
+              <label for="payment_req">Payment Required</label>
+              <input type="checkbox" class="formcheckbox" id="editpayment_req" name="payment_req" required/>
+              <div class="invalid-feedback"></div>
+            </div>
+            
+            <div class="form-group pb-3">
+              <label for="leaving_time">Leaving Time</label>
+              <input type="datetime-local" class="form-control" id="editleaving_time" name="leaving_time" required/>
+              <div class="invalid-feedback">Please provide a leaving time.</div>
             </div>
           </form>
         </div>
@@ -99,15 +141,22 @@
           tripElement.classList.add('card', 'mb-3');
           tripElement.innerHTML = `
             <div class="card-body">
-              <h5 class="card-title">Destination: ${trip.destination}</h5>
+              <h5 class="card-title"> ${trip.nickname}</h5>
+              <p class="card-text">Destination: ${trip.destination}</p>
               <p class="card-text">Starting Location: ${trip.original_location}</p>
               <button class="btn btn-primary editTripButton" data-trip-id="${trip.trip_id}">Edit Trip Details</button>
             </div>
           `;
           tripList.appendChild(tripElement);
           tripElement.querySelector('.editTripButton').addEventListener('click', function() {
+            document.getElementById('editnickname').value = trip.nickname;
             document.getElementById('editDestination').value = trip.destination;
             document.getElementById('editOriginalLocation').value = trip.original_location;
+            document.getElementById('editactive').checked = trip.active;
+            document.getElementById('editpayment_req').checked = trip.payment_req;
+            const leavingTime = new Date(trip.leaving_time);
+            const isoLeavingTime = leavingTime.toISOString().substring(0, 16);
+            document.getElementById('editleaving_time').value = isoLeavingTime;
             $('#editTripModal').modal('show');
           });
         });
@@ -132,76 +181,79 @@
       body: JSON.stringify({
         destination: destination,
         original_location: original_location,
+
         payment_req: paymentReqCheckbox
+        active: document.getElementById('active').checked,
+        payment_req: document.getElementById('payment_req').checked,
+        leaving_time: document.getElementById('leaving_time').value,
+        nickname: document.getElementById('nickname').value
       }),
     })
     .then(response => response.json())
-    .then(data => {
-      if (data.status === 'success') {
-        fetchTrips(); // update the trip list
-      } else {
-        console.error('Error:', data.message);
-      }
-    })
+    .then(sleep(250))
+    .then(fetchTrips())
     .catch((error) => {
       console.error('Error:', error);
     })
-    fetchTrips();
     });
 
 
-    document.getElementById('editTripSubmit').addEventListener('click', function() {
-    const tripId = document.querySelector('.editTripButton').getAttribute('data-trip-id');
-    const destination = document.getElementById('editDestination').value;
-    const original_location = document.getElementById('editOriginalLocation').value;
-    fetch(`/trip/${tripId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        destination: destination,
-        original_location: original_location
-      }),
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.status === 'success') {
-        fetchTrips(); // update the trip list
-        $('#editTripModal').modal('hide');
-      } else {
-        console.error('Error:', data.message);
+    document.getElementById('editTripSubmit').addEventListener('click', function() {        
+      const tripId = document.querySelector('.editTripButton').getAttribute('data-trip-id');
+      const destination = document.getElementById('editDestination').value;
+      const original_location = document.getElementById('editOriginalLocation').value;      
+      fetch(`/trip/${tripId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          destination: destination,
+          original_location: original_location,
+          active: document.getElementById('editactive').checked,
+          payment_req: document.getElementById('editpayment_req').checked,
+          leaving_time: document.getElementById('editleaving_time').value,
+          nickname: document.getElementById('editnickname').value 
+        }),
+      })
+      .then(response => response.json())
+      .then(sleep(250))
+      .then(fetchTrips())
+      .then($('#editTripModal').modal('hide'))
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  });
+
+  //Sleep Function to give database time to update
+  function sleep(milliseconds) {
+    var start = new Date().getTime();
+    for (var i = 0; i < 1e7; i++) {
+      if ((new Date().getTime() - start) > milliseconds){
+        break;
       }
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
-    fetchTrips();
-    });
+    }
+  }
 
-
-    // Validation code if we want to validate user input later
-    (function() {
-      'use strict';
-      window.addEventListener('load', function() {
-        // Fetch all the forms we want to apply custom Bootstrap validation styles to
-        var forms = document.getElementsByClassName('needs-validation');
-        // Loop over them and prevent submission
-        var validation = Array.prototype.filter.call(forms, function(form) {
-          form.addEventListener('submit', function(event) {
-            if (form.checkValidity() === false) {
-              event.preventDefault();
-              event.stopPropagation();
-            }
-            form.classList.add('was-validated');
-          }, false);
-        });
-      }, false);
-    })();
+  // Validation code if we want to validate user input later
+  (function() {
+    'use strict';
+    window.addEventListener('load', function() {
+      // Fetch all the forms we want to apply custom Bootstrap validation styles to
+      var forms = document.getElementsByClassName('needs-validation');
+      // Loop over them and prevent submission
+      var validation = Array.prototype.filter.call(forms, function(form) {
+        form.addEventListener('submit', function(event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    }, false);
+  })();
 </script>
 
 
 <%- include ('../partials/footer') %>
-
-
-

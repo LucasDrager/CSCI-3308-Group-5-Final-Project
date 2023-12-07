@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS users (
   last_name varchar(50),
   email varchar(50),
   profile_img BYTEA,
-  created_at timestamp
+  created_at timestamp,
+  trips_taken integer
 );
 
 -- Create the friends table
@@ -24,7 +25,9 @@ CREATE TABLE IF NOT EXISTS trip (
   destination varchar(255),
   original_location varchar(255),
   active boolean,
-  payment_req boolean
+  payment_req boolean,
+  leaving_time timestamp,
+  nickname varchar(255)
 );
 
 -- Create the passengers table
