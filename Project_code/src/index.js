@@ -656,31 +656,26 @@ app.get("/createTrip", (req, res) => {
 //Create a trip:
 
 app.post("/trip", (req, res) => {
-  const query = "INSERT INTO trip (driverID, destination, original_location) VALUES ($1, $2, $3);";
-  //REMOVE COMMENT. Attempt to use both session variable and variable from page.
-  db.none(query, [req.session.username, req.body.destination, req.body.original_location])
+  const query = "INSERT INTO trip (driverID, destination, original_location, active, payment_req, leaving_time, nickname) VALUES ($1, $2, $3, $4, $5, $6, $7);";
+  db.none(query, [req.session.username, req.body.destination, req.body.original_location, req.body.active, req.body.payment_req, req.body.leaving_time, req.body.nickname])
     .then(() => {
-      // res.json({ status: 'success', message: 'Trip created successfully' });
       console.log('Trip created successfully');
     })
     .catch(err => {
       console.log(err);
-      // res.json({ status: 'error', message: 'Failed to update trip' });
     });
 });
 
 //Edit trip details:
 
 app.put("/trip/:trip_id", (req, res) => {
-  const query = "UPDATE trip SET driverID = $1, destination = $2, original_location = $3 WHERE trip_id = $4;";
-  db.none(query, [req.session.username, req.body.destination, req.body.original_location, req.params.trip_id])
+  const query = "UPDATE trip SET driverID = $1, destination = $2, original_location = $3, active = $4, payment_req = $5, leaving_time = $6, nickname = $7 WHERE trip_id = $8;"; 
+  db.none(query, [req.session.username, req.body.destination, req.body.original_location, req.body.active, req.body.payment_req, req.body.leaving_time, req.body.nickname, req.params.trip_id])
     .then(() => {
-      // res.json({ status: 'success', message: 'Trip updated successfully' });
       console.log('Trip updated successfully');
     })
     .catch(err => {
       console.log(err);
-      // res.json({ status: 'error', message: 'Failed to update trip' });
     });
 });
 
