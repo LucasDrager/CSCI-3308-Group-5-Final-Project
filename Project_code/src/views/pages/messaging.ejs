@@ -50,29 +50,35 @@ button:hover {
   background-color: #45a049;
 }
 
-  #chat-list {
-    max-width: 200px; /* Set a maximum width for the chat list */
-    margin: 20px;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 10px;
-  }
+#chat-list {
+  max-width: 200px; /* Set a maximum width for the chat list */
+  margin: 20px;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+}
 
-  .chat-item {
-    cursor: pointer;
-    padding: 10px;
-    margin-bottom: 5px;
-    border-radius: 5px;
-    background-color: #e0e0e0;
-    transition: background-color 0.3s ease;
-  }
+.chat-item {
+  cursor: pointer;
+  padding: 10px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  background-color: #e0e0e0;
+  transition: background-color 0.3s ease;
+}
 
-  .chat-item:hover {
-    background-color: #d0d0d0;
-  }
+.chat-item:hover {
+  background-color: #d0d0d0;
+}
+#Title{
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+}
 
-    </style>
+</style>
   <script>
     function createChatID(name1, name2) {
       for (let i = 0; i < Math.min(name1.length, name2.length); i++) {
@@ -173,7 +179,7 @@ const getChats  = () => {
 
   </script>
 
-    <h2 style = "text-align: center; padding: 5px;">Messaging</h2>
+    <h2 id="Title">Messaging</h2>
     <main>
       <button onclick="getChats()">Refresh</button>
     
