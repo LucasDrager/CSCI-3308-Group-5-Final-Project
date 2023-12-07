@@ -123,6 +123,7 @@
     event.preventDefault(); // prevent the form from submitting normally
     var destination = document.getElementById('destination').value;
     var original_location = document.getElementById('original_location').value;
+    var paymentReqCheckbox = document.getElementById('requirePayments').checked;
     fetch('/trip', {
       method: 'POST',
       headers: {
@@ -130,7 +131,8 @@
       },
       body: JSON.stringify({
         destination: destination,
-        original_location: original_location
+        original_location: original_location,
+        payment_req: paymentReqCheckbox
       }),
     })
     .then(response => response.json())
