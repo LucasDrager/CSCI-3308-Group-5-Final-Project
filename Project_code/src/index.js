@@ -10,6 +10,8 @@ const session = require('express-session'); // To set the session object. To sto
 const bcrypt = require('bcrypt'); //  To hash passwords
 const multer = require('multer');
 const path = require('path');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
@@ -25,6 +27,7 @@ const dbConfig = {
 };
 
 const db = pgp(dbConfig);
+const secretKey = 'yourSecretKey'; 
 
 // test your database
 db.connect()
@@ -44,6 +47,7 @@ app.use(bodyParser.json()); // specify the usage of JSON for parsing request bod
 
 const storage = multer.memoryStorage(); // Store files in memory NEEDED for uploadIMG api
 const upload = multer({ storage: storage });
+app.use(cookieParser());
 
 // initialize session variables
 app.use(
@@ -72,6 +76,10 @@ app.get('/welcome', (req, res) => {
 });
 
 app.get("/", (req, res) => {
+  const authToken = req.cookies.authtoken;
+  if (authToken) {
+    return res.redirect("/homepage");
+  }
   res.render("pages/login", { showSignUpPanel: false });
 });
 
@@ -86,8 +94,128 @@ app.get("/login", (req, res) => {
 
 //Login Get call
 app.get("/register", (req, res) => {
+app.get("/register", (req, res) => {
   res.render("pages/login", { showSignUpPanel: true });
 });
+
+
+app.post("/login", async (req, res) => {
+  try {
+    const usernameQuery = `SELECT * FROM users WHERE users.username = $1`;
+    const data = await db.one(usernameQuery, [req.body.username]);
+    const password = data.password;
+    const match = await bcrypt.compare(req.body.password, password);
+
+    if (match) {
+      // Authentication successful
+      const tokenPayload = {
+        username: req.body.username,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: data.email,
+        keepSignedIn: req.body.keepSignedIn,
+      };
+
+      const token = jwt.sign(tokenPayload, secretKey, { expiresIn: '1h' }); // Set your own secret key and expiration time
+      res.cookie('authtoken', token, { httpOnly: true });
+
+      req.session.keepSignedIn = req.body.keepSignedIn;
+
+      res.redirect("/homepage");
+    } else {
+      // Authentication failed
+      res.render("pages/login", {showSignUpPanel: false, message: "Invalid password" });
+    }
+  } catch (err) {
+    console.error(err);
+    res.render("pages/login", { showSignUpPanel: false, message: "User does not exist" });
+  }
+});
+
+
+//Register post call
+app.post("/register", async (req, res) => {
+  let hash;
+  bcrypt.genSalt(10, function (err, salt) {
+    bcrypt.hash(req.body.password, salt, function (err, passHash) {
+      hash = passHash;
+
+      const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at) VALUES ($1, $2, $3, $4, $5, $6);";
+      const values = [req.body.username, hash, req.body.first_name, req.body.last_name, req.body.email, new Date()];
+
+      if (err) {
+        res.render("pages/login", { showSignUpPanel: true });
+      } else {
+        db.any(query, values)
+          .then((data) => {
+            res.redirect("/login");
+          })
+          .catch((err) => {
+            console.log(err);
+            res.render("pages/login", { showSignUpPanel: false });
+          });
+      }
+    });
+  });
+});
+
+app.get('/keep-signed-in', (req, res) => {
+  const token = req.cookies.authtoken;
+
+  if (!token) {
+    return res.json({ keepSignedIn: false });
+  }
+
+  try {
+    const decoded = jwt.verify(token, secretKey);
+    res.json({ keepSignedIn: decoded.keepSignedIn });
+  } catch (error) {
+    res.json({ keepSignedIn: false });
+  }
+});
+
+const verifyToken = (req, res, next) => {
+  const token = req.cookies.authtoken;
+
+  if (!token) {
+    return res.redirect('/login?message=Please%20log%20in%20to%20access%20this%20page');
+  }
+
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      return res.redirect('/login?message=Invalid%20token');
+    }
+
+    req.session.username = decoded.username;
+    req.session.first_name = decoded.first_name;
+    req.session.last_name = decoded.last_name;
+    req.session.email = decoded.email;
+    req.session.save();
+    next();
+  });
+};
+
+app.use(verifyToken);
+
+// const auth = (req, res, next) => {
+//   if (!req.session.username) {
+//     // Default to login page.
+//     return res.redirect('/login?message=Please%20log%20in%20to%20access%20this%20page');
+//   }
+//   next();
+// };
+
+// app.use(auth);
+
+//log out get call
+app.get("/logout", (req, res) => {
+  res.clearCookie('authtoken');
+  req.session.destroy();
+  res.render("pages/login", { showSignUpPanel: false });
+});
+
+
+app.get("/messageLoad", async (req, res) => {
 app.get("/chats", async (req, res) => {
 
   // const chatsData = `SELECT * FROM chats WHERE chats.user1 = ${req.session.user};`;
@@ -172,77 +300,27 @@ app.get("/messages", async (req, res) => {
     });
 });
 
+app.get("/chats", async (req, res) => {
 
-//Login post call
-app.post("/login", async (req, res) => {
-  try {
-    const usernameQuery = `SELECT * FROM users WHERE users.username = $1`;
-    const data = await db.one(usernameQuery, [req.body.username]);
-    const password = data.password;
+  // const chatsData = `SELECT * FROM chats WHERE chats.user1 = ${req.session.user};`;
+  const chatsData2 = `SELECT * FROM chats WHERE chats.user2 = 'a';`;
 
-    const match = await bcrypt.compare(req.body.password, password);
 
-    if (match) {
-      // Authentication successful
-      req.session.username = req.body.username;
-      req.session.first_name = data.first_name;
-      req.session.last_name = data.last_name;
-      req.session.email = data.email;
-      req.session.save();
-      res.redirect("/homepage");
-    } else {
-      // Authentication failed
-      res.render("pages/login", { showSignUpPanel: false, message: "Invalid password" });
-    }
-  } catch (err) {
-    console.error(err);
-    res.render("pages/login", { showSignUpPanel: false, message: "User does not exist" });
-
-  }
-});
-
-//Register post call
-app.post("/register", async (req, res) => {
-  let hash;
-  bcrypt.genSalt(10, function (err, salt) {
-    bcrypt.hash(req.body.password, salt, function (err, passHash) {
-      hash = passHash;
-
-      const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at) VALUES ($1, $2, $3, $4, $5, $6);";
-      const values = [req.body.username, hash, req.body.first_name, req.body.last_name, req.body.email, new Date()];
-
-      if (err) {
-        res.render("pages/login", { showSignUpPanel: true });
-      } else {
-        db.any(query, values)
-          .then((data) => {
-            res.redirect("/login");
-          })
-          .catch((err) => {
-            console.log(err);
-            res.render("pages/login", { showSignUpPanel: false });
-          });
-      }
+  await db.any(chatsData2, [req.session.username])
+    .then((chatsData2) => {
+      res.json(chatsData2);
+      // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+      // res.redirect("/messages");
     });
-  });
+
+
+
 });
-
-const auth = (req, res, next) => {
-  if (!req.session.username) {
-    // Default to login page.
-    return res.redirect('/login?message=Please%20log%20in%20to%20access%20this%20page');
-  }
-  next();
-};
-
-app.use(auth);
-
-//log out get call
-app.get("/logout", (req, res) => {
-  req.session.destroy();
-  res.render("pages/login", { showSignUpPanel: false });
-});
-
 
 app.get('/recent-transactions', async (req, res) => {
   try {
@@ -536,16 +614,16 @@ app.get("/homepage", (req, res) => {
     });
 });
 
-app.delete("/CancelUserTrip/:Trip_id", (req, res) => {
+app.delete("/CancelUserTrip/:Trip_id", (req,  res) => {
   const deleteQuery = "DELETE FROM passengers WHERE trip_id = $1 AND passenger = $2;";
-  db.any(deleteQuery, [req.params.Trip_id, req.session.username])
-    .then((data) => {
-      console.log("Data deleted successfully");
-    })
-    .catch((err) => {
-      console.log(err);
-      res.redirect("homepage");
-    });
+  db.any(deleteQuery,  [req.params.Trip_id,  req.session.username])
+      .then((data) => {
+        console.log("Data deleted successfully");
+      })
+      .catch((err) => {
+        console.log(err);
+        res.redirect("homepage");
+      });
 });
 
 app.delete("/CancelUserMadeTrip/:Trip_id", (req, res) => {
@@ -656,9 +734,6 @@ app.delete("/trip/:trip_id", async (req, res) => {
     res.json({ status: 'error', message: 'Failed to delete trip' });
   }
 });
-
-// Authentication Required
-app.use(auth);
 
 // *****************************************************
 // <!-- Section 5 : Start Server-->
