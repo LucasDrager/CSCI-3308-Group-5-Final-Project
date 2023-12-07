@@ -686,6 +686,7 @@ app.post("/trip/:trip_id/passenger", (req, res) => {
   const query = "INSERT INTO passengers (trip_id, passenger) VALUES ($1, $2);";
   db.none(query, [req.params.trip_id, req.body.passenger])
     .then(() => {
+      console.log('Trip joined successfully');
       res.json({ status: 'success', message: 'Passenger added successfully' });
     })
     .catch(err => {
@@ -733,6 +734,31 @@ app.delete("/trip/:trip_id", async (req, res) => {
   }
 });
 
+// Get all trips
+
+app.get("/alltrips", async (req, res) => {
+  const query = "SELECT * FROM trip;";
+  try {
+    const trips = await db.any(query);
+    res.json({ status: 'success', data: trips });
+  } catch (err) {
+    console.log(err);
+    res.json({ status: 'error', message: 'Failed to fetch trips' });
+  }
+});
+
+// Render joinTrip page
+
+app.get("/joinTrip", async (req, res) => {
+  const query = "SELECT * FROM trip;";
+  try {
+    const trips = await db.any(query);
+    res.render("pages/joinTrip.ejs", { trips: trips, username: req.session.username });
+  } catch (err) {
+    console.log(err);
+    res.redirect("homepage");
+  }
+});
 // *****************************************************
 // <!-- Section 5 : Start Server-->
 // *****************************************************

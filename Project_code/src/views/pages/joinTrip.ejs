@@ -1,0 +1,48 @@
+<%- include('../partials/header') %>
+<%- include('../partials/menu') %> 
+
+<div class="container">
+  <h1 class="text-center">Join a Trip</h1>
+  <div class="row">
+    <% trips.forEach((trip) => { %>
+      <% if (trip.driverID !== username) { %>
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title"><%= trip.nickname %></h5>
+              <p class="card-text">
+                From: <%= trip.original_location %> <br>
+                To: <%= trip.destination %>
+              </p>
+              <button class="btn btn-primary join-trip" data-trip-id="<%= trip.trip_id %>">Join Trip</button>
+            </div>
+          </div>
+        </div>
+      <% } %>
+    <% }); %>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.join-trip').forEach((button) => {
+    button.addEventListener('click', (event) => {
+      const tripId = event.target.dataset.tripId;
+      fetch(`/trip/${tripId}/passenger`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ passenger: '<%= username %>' }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          alert('You have joined the trip successfully!');
+          location.reload();
+        } else {
+          alert('Failed to join the trip. Please try again.');
+        }
+      });
+    });
+  });
+</script>
+
+<%- include ('../partials/footer') %>
