@@ -773,6 +773,7 @@ app.post("/deletion", async (req, res) => {
         await deleteUser(username);
 
         // Destroy the session after successful deletion
+        res.clearCookie('authtoken');
         req.session.destroy();
 
         // Redirect to the register page after successful deletion
