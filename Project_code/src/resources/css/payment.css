@@ -1,17 +1,17 @@
-/* body {
+#maincontainer {
     margin: 0;
     color: #6a6f8c;
     background: #ffffff; 
     font: 600 16px/18px "Open Sans", sans-serif;
   }
-  
+
   .container {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    min-height: 100vh;
   }
-  
+
   .container .box {
     background-color: #fff;
     border-radius: 10px;
@@ -19,10 +19,15 @@
     padding: 20px;
     text-align: center;
     margin-bottom: 100px; 
-  } */
+    max-height:90vh; 
+    overflow-y: auto; 
+  }
 header {
   background-color: #333;
   color: #fff;
   padding: 20px;
   text-align: center;
 }
+
+
+
