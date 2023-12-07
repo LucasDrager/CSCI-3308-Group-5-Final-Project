@@ -44,6 +44,9 @@ db.connect()
 // *****************************************************
 app.set('view engine', 'ejs'); // set the view engine to EJS
 app.use(bodyParser.json()); // specify the usage of JSON for parsing request body.
+
+const storage = multer.memoryStorage(); // Store files in memory NEEDED for uploadIMG api
+const upload = multer({ storage: storage });
 app.use(cookieParser());
 
 // initialize session variables
@@ -90,6 +93,7 @@ app.get("/login", (req, res) => {
 });
 
 //Login Get call
+app.get("/register", (req, res) => {
 app.get("/register", (req, res) => {
   res.render("pages/login", { showSignUpPanel: true });
 });
@@ -210,6 +214,29 @@ app.get("/logout", (req, res) => {
   res.render("pages/login", { showSignUpPanel: false });
 });
 
+
+app.get("/messageLoad", async (req, res) => {
+app.get("/chats", async (req, res) => {
+
+  // const chatsData = `SELECT * FROM chats WHERE chats.user1 = ${req.session.user};`;
+  const chatsData2 = `SELECT * FROM chats WHERE chats.user2 = 'a';`;
+
+
+  await db.any(chatsData2, [req.session.username])
+    .then((chatsData2) => {
+      res.json(chatsData2);
+      // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+      // res.redirect("/messages");
+    });
+
+
+
+});
 
 app.get("/messageLoad", async (req, res) => {
 
@@ -369,26 +396,25 @@ app.get("/settings", (req, res) => {
   res.render("pages/settings")
 });
 
-const storage = multer.memoryStorage(); // Store files in memory
-const upload = multer({ storage: storage });
-
 // Settings API Calls
 app.post("/uploadIMG", upload.single("profileImage"), async (req, res) => {
   try {
-    const { username } = req.session; // Assuming you store the username in the session
+    const { username } = req.session;
     const imageBuffer = req.file.buffer;
 
     // Update or insert user profile image
     await db.query(
       "INSERT INTO users (username, profile_img) VALUES ($1, $2) ON CONFLICT (username) DO UPDATE SET profile_img = $2",
       [username, imageBuffer]
-    );
-    res.render("/settings");
+    ).catch(error => console.error('Error executing SQL query:', error));
+    console.log("Uploaded image file");
+    res.redirect("/settings");
   } catch (error) {
     console.error("Error uploading image:", error);
     res.status(500).json({ success: false, message: "Internal server error." });
   }
 });
+
 
 app.post("/change_username", async (req, res) => {
   try {
@@ -396,15 +422,18 @@ app.post("/change_username", async (req, res) => {
     const { username } = req.session; // Use req.session for accessing the current user's username
 
     // Update the username in the database
+    console.log('Updating username:', username, 'to', newUsername);
     const result = await db.query(
       "UPDATE users SET username = $1 WHERE username = $2 RETURNING *",
       [newUsername, username]
     );
-
+    console.log('Database Update Result:', result);
     if (result.length > 0) {
       const updatedUser = result[0];
       // Update the session with the new username
+      console.log('Before Update - Session:', req.session);
       req.session.username = updatedUser.username;
+      console.log('After Update - Session:', req.session);
       res.redirect("/settings");
     } else {
       res.status(404).json({ success: false, message: "User not found" });
@@ -434,7 +463,7 @@ app.post("/change_password", async (req, res) => {
 
         // Update the user's password in the database
         await db.none('UPDATE users SET password = $1 WHERE username = $2', [hashedNewPassword, username]);
-
+        console.log('Password updated redirecting to /settings');
         res.redirect("/settings");
       } else {
         res.status(401).json({ success: false, message: 'Current password is incorrect' });
@@ -585,16 +614,16 @@ app.get("/homepage", (req, res) => {
     });
 });
 
-app.delete("/CancelUserTrip/:Trip_id", (req, res) => {
+app.delete("/CancelUserTrip/:Trip_id", (req,  res) => {
   const deleteQuery = "DELETE FROM passengers WHERE trip_id = $1 AND passenger = $2;";
-  db.any(deleteQuery, [req.params.Trip_id, req.session.username])
-    .then((data) => {
-      console.log("Data deleted successfully");
-    })
-    .catch((err) => {
-      console.log(err);
-      res.redirect("homepage");
-    });
+  db.any(deleteQuery,  [req.params.Trip_id,  req.session.username])
+      .then((data) => {
+        console.log("Data deleted successfully");
+      })
+      .catch((err) => {
+        console.log(err);
+        res.redirect("homepage");
+      });
 });
 
 app.delete("/CancelUserMadeTrip/:Trip_id", (req, res) => {
