@@ -94,7 +94,6 @@ app.get("/login", (req, res) => {
 
 //Login Get call
 app.get("/register", (req, res) => {
-app.get("/register", (req, res) => {
   res.render("pages/login", { showSignUpPanel: true });
 });
 
@@ -214,8 +213,6 @@ app.get("/logout", (req, res) => {
   res.render("pages/login", { showSignUpPanel: false });
 });
 
-
-app.get("/messageLoad", async (req, res) => {
 app.get("/chats", async (req, res) => {
 
   // const chatsData = `SELECT * FROM chats WHERE chats.user1 = ${req.session.user};`;
