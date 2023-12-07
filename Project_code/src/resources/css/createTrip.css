@@ -30,6 +30,7 @@ h1 {
 #manage_trips {
     border-radius: 25px;
     background: rgb(89, 149, 198);
+    padding-bottom: 100px;
     /* padding: 20px; */
     width: 100%;
     height: 150px;
@@ -39,6 +40,11 @@ h1 {
 
 #create_trip {
     color: #333;
+}
+
+#your_trips {
+    color: #333;
+    padding-bottom: 100px;
 }
 
 button {
@@ -104,4 +110,35 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
     background-color: #3367d6;
+}
+
+input[type="checkbox"] {
+    width: 20px; 
+    height: 20px; 
+    border: 1px solid transparent;
+    outline-width: 0;
+}
+
+input[type="checkbox"]:before {
+    content: "";
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-color: #fff;
+    border: 1px solid #000;
+}
+
+input[type="checkbox"]:checked:before {
+    content: "\2713"; /* check mark */
+    text-align: center;
+    line-height: 20px;
+}
+
+#formcheckbox {
+    outline-width: 0;
+    display: block;
+}
+
+input.formcheckbox:focus {
+    outline-width: 0;
 }
