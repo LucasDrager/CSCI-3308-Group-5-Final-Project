@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS users (
   last_name varchar(50),
   email varchar(50),
   profile_img BYTEA,
-  created_at timestamp
+  created_at timestamp,
+  trips_taken integer
 );
 
 -- Create the friends table
