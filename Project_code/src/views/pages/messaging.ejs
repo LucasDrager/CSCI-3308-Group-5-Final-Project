@@ -92,6 +92,7 @@ button:hover {
 
     </style>
   <script>
+    var current_chat_id = 0;
     function createChatID(name1, name2) {
       for (let i = 0; i < Math.min(name1.length, name2.length); i++) {
         if (name1[i] < name2[i]) {
@@ -110,6 +111,7 @@ function goBack() {
 
   const sendMessage = () => {
     const messageText = document.getElementById('message-text').value;
+    document.getElementById('message-text').value = '';
 
     fetch('/messages1', {
         method: 'POST',
@@ -118,27 +120,18 @@ function goBack() {
         },
         body: JSON.stringify({
             message_text: messageText,
-            sender: 'a',
-            receiver: 'Testerson',
-            chats_id: createChatID('a', 'Testerson'),
+            sender: 'You',
+            reciever: 'a',
+            chats_id: current_chat_id,
             sent_at: new Date()
         })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        // Handle the data after a successful response
-        console.log('Message sent successfully:', data);
-    })
-    .catch(error => {
-        console.error('Error sending message:', error);
     });
+    
+    
+   
+   
 
-    openChat(1);
+    openChat(current_chat_id);
 };
 const getChats  = () => {
   fetch('/chats').then(res => res.json()).then(data => {
@@ -161,7 +154,9 @@ const getChats  = () => {
       
         
         const openChat = (chat_Id) => {
-  fetch('/messages?chats_id = Hello ')
+          current_chat_id = chat_Id;
+          console.log(chat_Id);
+  fetch('/messages/'+chat_Id)
     .then(res => res.json()).then(data => {
       document.getElementById('chat-list').style.display = 'none';
       document.getElementById('messaging-container').style.display = 'block';
@@ -192,11 +187,17 @@ const getChats  = () => {
   </script>
     <main>
 
-      <button onclick="getChats()">Refresh</button>
+    
     
       <section id="chat-list">
-        <div class="chat-item" onclick="openChat(1)">Chat 1</div>
-        <div class="chat-item" onclick="openChat(2)">Chat 2</div>
+        <div class="chat-item" onclick="openChat(9)">Vail</div>
+        <div class="chat-item" onclick="openChat(8)">Aspen</div>
+        <div class="chat-item" onclick="openChat(3)">Breckenridge</div>
+        <div class="chat-item" onclick="openChat(4)">Keystone</div>
+        <div class="chat-item" onclick="openChat(5)">Beaver Creek</div>
+        <div class="chat-item" onclick="openChat(6)">Copper Mountain</div>
+        <div class="chat-item" onclick="openChat(7)">Random</div>
+
         
       </section>
       <section id="messaging-container" style="display: none">

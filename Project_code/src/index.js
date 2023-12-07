@@ -87,26 +87,34 @@ app.get("/register", (req,res) => {
 });
 app.get("/chats", async (req, res) => {
 
-  // const chatsData = `SELECT * FROM chats WHERE chats.user1 = ${req.session.user};`;
+    //const chatsData = `SELECT * FROM chats WHERE chats.user1 = ${req.session.user};`;
    const chatsData2 = `SELECT * FROM chats WHERE chats.user2 = 'a';`;
  
   
    await db.any(chatsData2,[req.session.user])
    .then((chatsData2) => {
      res.json(chatsData2);
-    // return res.status(200);
+    //return res.status(200);
    })
    .catch((err) => {
-     console.log(err);
      res.status(500).json({ error: 'Internal Server Error' });
      //console.log('fetched response 3');
-    // res.redirect("/messages");
+     //res.redirect("/messages");
    });
  
  
  
  });
  
+ app.get("/username", async (req, res) => {
+  
+  await db.oneOrNone('SELECT * FROM users WHERE username = $1', [req.params.username]);
+  res.json({ status: 'success', data: userData });
+  
+  
+  
+ });
+
  app.get("/messageLoad", async (req, res) => {
 
   res.render("pages/messaging.ejs");
@@ -117,42 +125,30 @@ app.get("/chats", async (req, res) => {
  
  app.post('/messages1', async (req, res) => {
  
-   const { chats_id, sender, message_text } = req.body;
+   const { chats_id, sender, message_text,reciever,sent_at } = req.body;
    
-   console.log('fetched response 100');
-   console.log('fetched response');
    // SQL query to insert the message into the database
-   const query = `INSERT INTO messages (chats_id, sender, message_text) VALUES (${chats_id}, '${sender}', '${message_text}');`
+
+   const query = `INSERT INTO messages (chats_id, sender, message_text,reciever,sent_at) VALUES ('${chats_id}', '${req.session.username}', '${message_text}','${reciever}','${sent_at}');`
    // Execute the query
-   console.log('fetched response 123');
    await db.any(query).then((data) => {
-     console.log('fetched response 1234');
-     console.log(data);
-     console.log('fetched response 12345');
-     res.redirect("/messages");
+    // res.redirect("/messages");
    })
  });
  
  // Route to fetch messages for a specific chat
- app.get("/messages", async (req, res) => {
+ app.get("/messages/1", async (req, res) => {
    //console.log('fetched response');
  
-   const chatID = req.query.chats_id;
- 
-   console.log('fetched response 1000');
-   console.log(chatID);
+   
    
  
  
  
    const messageData = `SELECT * FROM messages WHERE messages.chats_id = 1;`;
-   console.log('fetched response 1');
    await db.any(messageData,[req.session.user])
    .then((messageData) => {
-     console.log('fetched response 2');
  
-     console.log(messageData);
-     console.log('fetched response 3');
      res.json(messageData);
     // return res.status(200);
    })
@@ -163,6 +159,202 @@ app.get("/chats", async (req, res) => {
     // res.redirect("/messages");
    });
  });
+
+  // Route to fetch messages for a specific chat
+  app.get("/messages/2", async (req, res) => {
+    //console.log('fetched response');
+  
+  
+    
+  
+  
+  
+    const messageData = `SELECT * FROM messages WHERE messages.chats_id = 2;`;
+    await db.any(messageData,[req.session.user])
+    .then((messageData) => {
+  
+      console.log(messageData);
+      res.json(messageData);
+     // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+     // res.redirect("/messages");
+    });
+  });
+  
+  app.get("/messages/3", async (req, res) => {
+    //console.log('fetched response');
+  
+    const chatID = req.query.chats_id;
+  
+    console.log(chatID);
+    
+  
+  
+  
+    const messageData = `SELECT * FROM messages WHERE messages.chats_id = 3;`;
+    await db.any(messageData,[req.session.user])
+    .then((messageData) => {
+  
+      res.json(messageData);
+     // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+     // res.redirect("/messages");
+    });
+  });
+
+  app.get("/messages/4", async (req, res) => {
+    //console.log('fetched response');
+  
+    const chatID = req.query.chats_id;
+  
+    
+  
+  
+  
+    const messageData = `SELECT * FROM messages WHERE messages.chats_id = 4;`;
+    await db.any(messageData,[req.session.user])
+    .then((messageData) => {
+  
+      console.log(messageData);
+      res.json(messageData);
+     // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+     // res.redirect("/messages");
+    });
+  });
+
+  app.get("/messages/5", async (req, res) => {
+    //console.log('fetched response');
+  
+    const chatID = req.query.chats_id;
+  
+    
+  
+  
+  
+    const messageData = `SELECT * FROM messages WHERE messages.chats_id = 5;`;
+    await db.any(messageData,[req.session.user])
+    .then((messageData) => {
+  
+      res.json(messageData);
+     // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+     // res.redirect("/messages");
+    });
+  });
+
+  app.get("/messages/6", async (req, res) => {
+    //console.log('fetched response');
+  
+    const chatID = req.query.chats_id;
+  
+    
+  
+  
+  
+    const messageData = `SELECT * FROM messages WHERE messages.chats_id = 6;`;
+    await db.any(messageData,[req.session.user])
+    .then((messageData) => {
+  
+      res.json(messageData);
+     // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+     // res.redirect("/messages");
+    });
+  });
+
+  app.get("/messages/7", async (req, res) => {
+    //console.log('fetched response');
+  
+    const chatID = req.query.chats_id;
+  
+    
+  
+  
+  
+    const messageData = `SELECT * FROM messages WHERE messages.chats_id = 7;`;
+    await db.any(messageData,[req.session.user])
+    .then((messageData) => {
+  
+      res.json(messageData);
+     // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+     // res.redirect("/messages");
+    });
+  });
+
+  app.get("/messages/8", async (req, res) => {
+    //console.log('fetched response');
+  
+    const chatID = req.query.chats_id;
+  
+    
+  
+  
+  
+    const messageData = `SELECT * FROM messages WHERE messages.chats_id = 8;`;
+    await db.any(messageData,[req.session.user])
+    .then((messageData) => {
+  
+      res.json(messageData);
+     // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+     // res.redirect("/messages");
+    });
+  });
+
+  app.get("/messages/9", async (req, res) => {
+    //console.log('fetched response');
+  
+    const chatID = req.query.chats_id;
+  
+    
+  
+  
+  
+    const messageData = `SELECT * FROM messages WHERE messages.chats_id = 9;`;
+    await db.any(messageData,[req.session.user])
+    .then((messageData) => {
+  
+      res.json(messageData);
+     // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+     // res.redirect("/messages");
+    });
+  });
+ 
  
 
 //Login post call
