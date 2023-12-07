@@ -186,17 +186,11 @@
       }),
     })
     .then(response => response.json())
-    .then(data => {
-      if (data.status === 'success') {
-        fetchTrips(); // update the trip list
-      } else {
-        console.error('Error:', data.message);
-      }
-    })
+    .then(sleep(250))
+    .then(fetchTrips())
     .catch((error) => {
       console.error('Error:', error);
     })
-    fetchTrips();
     });
 
 
@@ -219,38 +213,42 @@
         }),
       })
       .then(response => response.json())
-      .then(data => {
-        if (data.status === 'success') {
-          fetchTrips(); // update the trip list
-          $('#editTripModal').modal('hide');
-        } else {
-          console.error('Error:', data.message);
-      }})
+      .then(sleep(250))
+      .then(fetchTrips())
+      .then($('#editTripModal').modal('hide'))
       .catch((error) => {
         console.error('Error:', error);
       });
-      fetchTrips();
   });
 
+  //Sleep Function to give database time to update
+  function sleep(milliseconds) {
+    var start = new Date().getTime();
+    for (var i = 0; i < 1e7; i++) {
+      if ((new Date().getTime() - start) > milliseconds){
+        break;
+      }
+    }
+  }
 
-    // Validation code if we want to validate user input later
-    (function() {
-      'use strict';
-      window.addEventListener('load', function() {
-        // Fetch all the forms we want to apply custom Bootstrap validation styles to
-        var forms = document.getElementsByClassName('needs-validation');
-        // Loop over them and prevent submission
-        var validation = Array.prototype.filter.call(forms, function(form) {
-          form.addEventListener('submit', function(event) {
-            if (form.checkValidity() === false) {
-              event.preventDefault();
-              event.stopPropagation();
-            }
-            form.classList.add('was-validated');
-          }, false);
-        });
-      }, false);
-    })();
+  // Validation code if we want to validate user input later
+  (function() {
+    'use strict';
+    window.addEventListener('load', function() {
+      // Fetch all the forms we want to apply custom Bootstrap validation styles to
+      var forms = document.getElementsByClassName('needs-validation');
+      // Loop over them and prevent submission
+      var validation = Array.prototype.filter.call(forms, function(form) {
+        form.addEventListener('submit', function(event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    }, false);
+  })();
 </script>
 
 
