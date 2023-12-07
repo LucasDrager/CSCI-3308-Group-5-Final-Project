@@ -1,12 +1,19 @@
 let EVENT_MODAL;
-function toggle_visibility(id,trip_id,driver_id,destination,original_location){
+function toggle_visibility(id,trip_id,name,driver_id,destination,original_location,time){
     EVENT_MODAL = new bootstrap.Modal(document.getElementById('event-modal'));
     displayID = id;
-    document.getElementById("TripName").innerHTML = trip_id;
+    document.getElementById("TripName").innerHTML = name;
     document.getElementById("TripDriver").innerHTML = driver_id;
     document.getElementById("LocationTo").innerHTML = destination;
     document.getElementById("LocationFrom").innerHTML = original_location;
-    getPassengers(trip_id).then(num => document.getElementById("Attendees").innerHTML = num);
+    document.getElementById("DepartTime").innerHTML = time;
+    getPassengers(trip_id).then(attendents => {
+        if(attendents == ""){
+            document.getElementById("Attendees").innerHTML = "No friends yet. Some will join soon!";
+        }else{
+            document.getElementById("Attendees").innerHTML = attendents;
+        }
+    });
     let mapDiv = document.getElementById("mapDiv")
     let mapElement = document.getElementById("map")
     if (mapElement === null){
