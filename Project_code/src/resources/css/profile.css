@@ -1,70 +1,84 @@
 body {
-    background-color: lightgray;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
 }
 
-.container {
-    position: fixed;
-    left: 30px;
-    top: 40%;
-    transform: translateY(-50%);
-    background-color: gray;
+#search-box {
+    margin-top: 20px;
+}
+
+#trip-search {
+    padding: 10px;
+    width: 60%;
+    border: none;
+    border-radius: 5px;
+}
+
+button {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+main {
+    max-width: 800px;
+    margin: 20px auto;
     padding: 20px;
-    width: 35%;
-    height: 50%;
-    overflow: hidden;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.container img {
-    width: 100%;
-    height: 100%;
-    object-fit: fill;
-    display: block;
+section {
+    margin-bottom: 40px;
 }
 
-.profileinfo-container {
-    position: fixed;
-    left: 40%;
-    top: 28%;
-    transform: translateY(-50%);
-    width: 55%;
-    padding: 20px;
+h2 {
+    color: #333;
 }
 
-.profileinfo-container h4 {
-    color: black;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    text-align: left;
+.trip-card {
+    /* padding: 15px; */
     margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.tripinfo-container{
-    position: fixed;
-    left: 40%;
-    top: 56%;
-    transform: translateY(-50%);
-    width: 55%;
-    padding: 20px;
+form {
+    display: flex;
+    flex-direction: column;
 }
 
-.tripinfo-container h4{
-color: black;
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-text-align: left;
-margin-bottom: 40px
+label {
+    margin-top: 10px;
 }
 
-.rating-container{
-    position: fixed;
-    left: 40%;
-    top: 80%;
-    transform: translateY(-50%);
-    width: 55%;
-    padding: 20px;
+input,
+textarea {
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
 }
-header {
+
+button[type="submit"] {
+    background-color: #4285f4;
+    color: #fff;
+    cursor: pointer;
+}
+
+button[type="submit"]:hover {
+    background-color: #3367d6;
+}
+
+#Title{
     background-color: #333;
     color: #fff;
     padding: 20px;

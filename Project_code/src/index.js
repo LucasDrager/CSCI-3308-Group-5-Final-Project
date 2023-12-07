@@ -214,7 +214,6 @@ app.get("/logout", (req, res) => {
 });
 
 app.get("/chats", async (req, res) => {
-
   // const chatsData = `SELECT * FROM chats WHERE chats.user1 = ${req.session.user};`;
   const chatsData2 = `SELECT * FROM chats WHERE chats.user2 = 'a';`;
 
@@ -596,12 +595,6 @@ app.get('/welcome', (req, res) => {
 });
 
 app.get("/homepage", (req, res) => {
-  // const tripData = `SELECT trip.trip_id,trip.driverid,trip.destination,trip.original_location 
-  // FROM trip INNER JOIN passengers ON trip.trip_id = passengers.trip_id 
-  // INNER JOIN users ON users.username = passengers.passenger 
-  // WHERE trip.active = TRUE 
-  //   AND (passengers.passenger != trip.driverid) 
-  //   AND ((passengers.passenger = $1) OR (trip.driverid = $1));`
   const usertrips = `SELECT * FROM trip WHERE trip.driverid = $1;`;
   const userJoinedTrips = `SELECT * FROM trip WHERE trip.trip_id IN (SELECT trip_id FROM passengers WHERE passengers.passenger = $1);`;
   db.task('get-everything', task => {

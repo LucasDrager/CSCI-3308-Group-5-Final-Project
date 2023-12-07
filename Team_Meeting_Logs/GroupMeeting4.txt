@@ -1,0 +1,3 @@
+Team meeting 4
+
+This meeting was the shortest one we held but mainly because it pertained to bug fixes that needed to be completed by presentation time and the way that we wanted the project presentation to look. Since the presentation requires us to have a specific amount of content ready set for us that discussion did not take long. The meeting ended with the team’s objective being to have the project working and hosted on Azure cloud service for its presentation.

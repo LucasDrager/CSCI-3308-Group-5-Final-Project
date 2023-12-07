@@ -1,0 +1,3 @@
+TA meeting 4
+
+This meeting was a demonstration of what the project would look like come time to present. Unfortunately there existed some run time bugs that would crash the project but members of the project were working on patches for those errors. Over the TA was impressed with the work we had done and was confident that with our bug fixes and patches the project would be in great condition. The was also a brief discussion about what our presentation needs to contain to meet requirements. The TA also requested that we have a section in the presentation about what we would have liked to accomplish.

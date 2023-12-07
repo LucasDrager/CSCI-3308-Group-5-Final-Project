@@ -5,7 +5,7 @@
 <head>
     <link rel="stylesheet" href="../../resources/css/homepage.css">
 </head>
-<h2 style = "text-align: center; padding: 5px;">Trips</h2>
+<h2 id="Title">Trips</h2>
 <main>
     <section id="current-trips">
         <h2>Current Trips</h2>
@@ -13,19 +13,16 @@
         <% for(var i=0; i < Data.length; i++) { %>
             <% for(var j=0; j < Data[i].length; j++) { %>
             <div class="trip-card" id="card-<%=i%>">
-                <h3>[Trip name]</h3>
+                <h3><%=Data[i][j].nickname%></h3>
                 <p><strong>From:</strong> <%=Data[i][j].destination%></p>
                 <p><strong>To:</strong> <%=Data[i][j].original_location%></p>
                 <p><strong>Driver:</strong> <%=Data[i][j].driverid%></p>
                 <% if(Data[i][j].driverid == User){ %>
                     <button type="button" onclick="cancelTrip('<%-count%>','<%-Data[i][j].trip_id%>',false)">Cancel Trip</a>
                   <% } else{ %>  
-                    <button type="button" onclick="cancelTrip('<%-count%>','<%-Data[i][j].trip_id%>',true)">Leave Trip</a>
-
-
-                        
+                    <button type="button" onclick="cancelTrip('<%-count%>','<%-Data[i][j].trip_id%>',true)">Leave Trip</a>   
                  <% } %>
-                <button type="button" style="background-color: blue; margin-left: 10px;" onclick="toggle_visibility('<%-count%>','<%-Data[i][j].trip_id%>','<%-Data[i][j].driverid%>','<%-Data[i][j].destination%>','<%-Data[i][j].original_location%>');">More details</button>
+                <button type="button" style="background-color: blue; margin-left: 10px;" onclick="toggle_visibility('<%-count%>','<%-Data[i][j].trip_id%>','<%-Data[i][j].nickname%>','<%-Data[i][j].driverid%>','<%-Data[i][j].destination%>','<%-Data[i][j].original_location%>','<%-Data[i][j].leaving_time%>');">More details</button>
             </div>
             <% count++; %>
             <% } %>
