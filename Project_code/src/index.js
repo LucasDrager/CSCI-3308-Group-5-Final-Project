@@ -431,7 +431,7 @@ app.post("/change_username", async (req, res) => {
       console.log('Before Update - Session:', req.session);
       req.session.username = updatedUser.username;
       console.log('After Update - Session:', req.session);
-      res.redirect("/settings");
+      res.redirect("/logout");
     } else {
       res.status(404).json({ success: false, message: "User not found" });
     }
@@ -556,19 +556,25 @@ app.get("/profile", (req, res) => {
 // Profile Page GET API call
 app.get("/profile/:username", async (req, res) => {
   try {
-    // Fetch the user's data from the database
-    const userSession = req.session.username;
-    const userData = await db.oneOrNone('SELECT * FROM users WHERE username = $1', [req.params.username]);
-    const userRatings = await db.any('SELECT * FROM ratings WHERE ratee_id = $1', [req.params.username]);
-    // If the user exists
-    if (userData) {
-      res.render("pages/profile.ejs", { user: userData, ratings: userRatings, activeUser: userSession });
-    } else {
-      res.status(404).json({ success: false, message: 'User not found' });
-    }
+      // Fetch the user's data from the database
+      const userSession = req.session.username;
+      const userData = await db.oneOrNone('SELECT * FROM users WHERE username = $1', [req.params.username]);
+      const userRatings = await db.any('SELECT * FROM ratings WHERE ratee_id = $1', [req.params.username]);
+
+      // Log user data and profile image data
+      console.log("User Data:", userData);
+      if (userData && userData.profile_img) {
+          console.log("Profile Image Data (length):", userData.profile_img.length);
+      }
+      if (userData) {
+          res.render("pages/profile.ejs", { user: userData, ratings: userRatings, activeUser: userSession });
+      } else {
+          console.log("User not found");
+          res.status(404).json({ success: false, message: 'User not found' });
+      }
   } catch (error) {
-    console.error('Error finding profile:', error);
-    res.status(500).json({ success: false, message: 'Internal server error' });
+      console.error('Error finding profile:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
