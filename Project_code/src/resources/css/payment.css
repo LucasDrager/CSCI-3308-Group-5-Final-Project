@@ -21,6 +21,8 @@
     margin-bottom: 100px; 
     max-height:90vh; 
     overflow-y: auto; 
+    max-height:90vh; 
+    overflow-y: auto; 
   }
 header {
   background-color: #333;
@@ -28,6 +30,3 @@ header {
   padding: 20px;
   text-align: center;
 }
-
-
-
