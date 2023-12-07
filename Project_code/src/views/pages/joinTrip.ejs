@@ -1,8 +1,10 @@
 <%- include('../partials/header') %>
 <%- include('../partials/menu') %> 
-
+<head>
+  <link rel="stylesheet" href="../../resources/css/joinTrip.css">
+</head>
+<h2 id="Title">Join a Trip</h2>
 <div class="container">
-  <h1 class="text-center">Join a Trip</h1>
   <div class="row">
     <% trips.forEach((trip) => { %>
       <% if (trip.driverid != username) { %>
