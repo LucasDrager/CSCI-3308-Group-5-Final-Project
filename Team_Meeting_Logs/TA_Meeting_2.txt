@@ -1,0 +1,10 @@
+TA Meeting 2
+
+Nasir
+	-Create sql
+	-Coming back to him
+Phill
+	-Settings Just page
+	-Should allow the user to interact with the DB so that
+
+Discussion breaks down and TA gives reality check which we needed badly. Figured out that we needed to do. The new objective it to implement functionality instead of our more lose approch to our project from week 1. The things to be added are, a trip page, profile page, homepage display with map, chats page, transaction page, settings page, all with functionallity. Those things should be completed or at a stable state by next week.

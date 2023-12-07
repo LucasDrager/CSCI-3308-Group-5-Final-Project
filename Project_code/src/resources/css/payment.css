@@ -1,23 +1,86 @@
-/* body {
-    margin: 0;
-    color: #6a6f8c;
-    background: #ffffff; 
-    font: 600 16px/18px "Open Sans", sans-serif;
-  }
-  
-  .container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-  }
-  
-  .container .box {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    text-align: center;
-    margin-bottom: 100px; 
-  } */
-  
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+#search-box {
+  margin-top: 20px;
+}
+
+#trip-search {
+  padding: 10px;
+  width: 60%;
+  border: none;
+  border-radius: 5px;
+}
+
+button {
+  padding: 10px 20px;
+  cursor: pointer;
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+main {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+section {
+  margin-bottom: 40px;
+}
+
+h2 {
+  color: #333;
+}
+
+.trip-card {
+  /* padding: 15px; */
+  margin-bottom: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-top: 10px;
+}
+
+input,
+textarea {
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+button[type="submit"] {
+  background-color: #4285f4;
+  color: #fff;
+  cursor: pointer;
+}
+
+button[type="submit"]:hover {
+  background-color: #3367d6;
+}
+
+#Title{
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+}

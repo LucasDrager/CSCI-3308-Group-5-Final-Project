@@ -3,9 +3,10 @@
 <script src="../../resources/js/settings.js"></script>
 <link rel="stylesheet" href="../../resources/css/settings.css">
 <div id="message-container"></div>
-<div class="container">
-    <div class="shadow p-3 mb-5 bg-body rounded" style="margin-top:  50px;">
-        <form id="changeProfileIMG" action="/uploadIMG" method="POST" enctype="multipart/form-data">
+<h2 id="Title">Settings</h2>
+<div>
+    <div class="shadow p-3 mb-5 bg-body rounded" style="margin-top:  20px;">
+        <form id="changeProfileIMG" action="/uploadIMG" method="POST" enctype="multipart/form-data" onsubmit="return handleUploadImage()">
             <label for="profileImage">Upload a Profile Image</label>
             <input type="file" name="profileImage" id="profileImage" accept="image/*">
             <br>

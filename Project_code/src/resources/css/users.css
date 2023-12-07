@@ -1,0 +1,22 @@
+.table.table-bordered {
+    margin-left: auto;
+    margin-right: auto;
+    width: 90%;
+    margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+td, th {
+    text-align: center;
+}
+
+main {
+    padding: 0 20px;
+}
+
+#Title{
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}

@@ -1,33 +1,16 @@
 <%- include ('../partials/header') %>
+<%- include('../partials/menu') %> 
 <body>
-
-    <header>
-      <h1>Messaging Page</h1>
-      <button onclick="goBack()" id="back-button" style="display: none;">Back</button>
-      
-    </header>
-
-    <style>
-
+<style>
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #f4f4f4;
-}
-
-header {
-  background-color: #333;
-  color: #fff;
-  padding: 20px;
-  text-align: center;
-
 }
 
 main {
   max-width: 800px;
   margin: 20px auto;
-  background-color: #fff;
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -67,30 +50,35 @@ button:hover {
   background-color: #45a049;
 }
 
-  #chat-list {
-    max-width: 200px; /* Set a maximum width for the chat list */
-    margin: 20px;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 10px;
-  }
+#chat-list {
+  max-width: 200px; /* Set a maximum width for the chat list */
+  margin: 20px;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+}
 
-  .chat-item {
-    cursor: pointer;
-    padding: 10px;
-    margin-bottom: 5px;
-    border-radius: 5px;
-    background-color: #e0e0e0;
-    transition: background-color 0.3s ease;
-  }
+.chat-item {
+  cursor: pointer;
+  padding: 10px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  background-color: #e0e0e0;
+  transition: background-color 0.3s ease;
+}
 
-  .chat-item:hover {
-    background-color: #d0d0d0;
-  }
+.chat-item:hover {
+  background-color: #d0d0d0;
+}
+#Title{
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  text-align: center;
+}
 
-
-    </style>
+</style>
   <script>
     var current_chat_id = 0;
     function createChatID(name1, name2) {
@@ -185,9 +173,8 @@ const getChats  = () => {
 
 
   </script>
-    <main>
 
-    
+
     
       <section id="chat-list">
         <div class="chat-item" onclick="openChat(9)">Vail</div>
@@ -203,7 +190,7 @@ const getChats  = () => {
       <section id="messaging-container" style="display: none">
         <section id="message-input">
           <textarea id="message-text" placeholder="Type your message..."></textarea>
-          <button onclick="sendMessage()" >Send</button>
+          <!-- <button onclick="sendMessage()" >Send</button> -->
         </section>
         
         <section id="chat-container">

@@ -32,22 +32,13 @@ function displayMessage(message, isSuccess = true) {
 }
 
 function handleChangeUsername() {
-  
   displayMessage('Username updated successfully', true);
-
-  return false;
 }
 
 function handleChangePassword() {
-
   displayMessage('Password updated successfully', true);
-
-  return false;
 }
 
-function handleDeleteAccount() {
-
-  displayMessage('Account deleted successfully', true);
-
-  return false;
+function handleUploadImage() {
+  displayMessage('Image File uploaded successfully', true);
 }

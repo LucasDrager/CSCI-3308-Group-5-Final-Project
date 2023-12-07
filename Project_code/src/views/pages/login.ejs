@@ -1,12 +1,16 @@
 <%- include ('../partials/header') %>
 
 <head>
-  <link rel="stylesheet" href="../../resources/css/login.css" />
+  <link rel="stylesheet" href="../../resources/css/login.css">
 </head>
-
 <body>
   <div class="login-wrap">
     <div class="login-html">
+      <% if (typeof message !== 'undefined' && message !== null) { %>
+        <div class="error-message">
+          <%= message %>
+        </div>
+      <% } %>
       <% if (typeof showSignUpPanel === 'undefined') { %>
         <% var showSignUpPanel = false; %>
         <% console.log('showSignUpPanel is undefined'); %>
@@ -25,7 +29,7 @@
               <input id="signin-password" type="password" class="input" data-type="password" name="password" required>
             </div>
             <div class="group">
-              <input id="check" type="checkbox" class="check" checked>
+              <input id="check" type="checkbox" class="check" name="keepSignedIn" checked>
               <label for="check"><span class="icon"></span> Keep me Signed in</label>
             </div>
             <div class="group">
@@ -45,11 +49,11 @@
             </div>
             <div class="group">
               <label for="first_name" class="label">First Name</label>
-              <input id="first_name" type="text" class="input" name="firstName" required>
+              <input id="first_name" type="text" class="input" name="first_name" required>
             </div>
             <div class="group">
               <label for="last_name" class="label">Last Name</label>
-              <input id="last_name" type="text" class="input" name="lastName" required>
+              <input id="last_name" type="text" class="input" name="last_name" required>
             </div>
             <div class="group">
               <label for="signup-password" class="label">Password</label>
@@ -72,6 +76,5 @@
     </div>
   </div>
 </body>
-
 </html>
 <%- include ('../partials/footer') %>

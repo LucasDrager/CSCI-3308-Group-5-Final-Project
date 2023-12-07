@@ -1,17 +1,25 @@
 <%- include ('../partials/header') %>
 <%- include ('../partials/menu') %>
+<head>
+    <link rel="stylesheet" href="../../resources/css/profile.css">
+</head>
+<h2 id="Title">Profile</h2>
 <body>
     <div class="container mt-3">
         <div class="row">
             <div class="col-md-4">
-                <img src="" alt="Profile Picture Here" class="img-thumbnail">
+                <% if (user.profile_img) { %>
+                    <img src="data:image/<%= user.profile_img_format %>;base64,<%= user.profile_img.toString('base64') %>" alt="Profile Picture Here" class="img-thumbnail">
+                <% } else { %>
+                    <p>No profile image available</p>
+                <% } %>
             </div>
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Username: <%= user.username %></h4>
-                        <p class="card-text">Firstname: <%= user.first_name %></p>
-                        <p class="card-text">Lastname: <%= user.last_name %></p>
+                        <p class="card-text">First Name: <%= user.first_name %></p>
+                        <p class="card-text">Last Name: <%= user.last_name %></p>
                         <p class="card-text">Email: <%= user.email %></p>
                     </div>
                 </div>
@@ -20,10 +28,7 @@
         <div class="row mt-3">
             <div class="col">
                 <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">Trips Completed:</h4>
-                        <p class="card-text">Total Distance Travelled:</p>
-                    </div>
+                    <h4 class="card-body">Trips Completed: <%= user.trips_taken %></h4>
                 </div>
             </div>
         </div>
