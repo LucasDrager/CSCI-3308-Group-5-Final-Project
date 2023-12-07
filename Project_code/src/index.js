@@ -139,7 +139,7 @@ app.post("/register", async (req, res) => {
     bcrypt.hash(req.body.password, salt, function (err, passHash) {
       hash = passHash;
 
-      const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at) VALUES ($1, $2, $3, $4, $5, $6);";
+      const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at, trips_taken) VALUES ($1, $2, $3, $4, $5, $6, 0);";
       const values = [req.body.username, hash, req.body.first_name, req.body.last_name, req.body.email, new Date()];
 
       if (err) {

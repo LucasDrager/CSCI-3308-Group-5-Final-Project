@@ -1,9 +1,7 @@
 <%- include ('../partials/header') %>
-<header>
-    <link rel="stylesheet" href="../../resources/css/settings.css">
-    <h1>Profile</h1>
-</header>
+<%- include ('../partials/menu') %>
 <body>
+    <h2 style = "text-align: center; padding: 5px;">Profile</h2>
     <div class="container mt-3">
         <div class="row">
             <div class="col-md-4">
@@ -17,8 +15,8 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Username: <%= user.username %></h4>
-                        <p class="card-text">Firstname: <%= user.first_name %></p>
-                        <p class="card-text">Lastname: <%= user.last_name %></p>
+                        <p class="card-text">First Name: <%= user.first_name %></p>
+                        <p class="card-text">Last Name: <%= user.last_name %></p>
                         <p class="card-text">Email: <%= user.email %></p>
                     </div>
                 </div>
@@ -27,10 +25,7 @@
         <div class="row mt-3">
             <div class="col">
                 <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">Trips Completed:</h4>
-                        <p class="card-text">Total Distance Travelled:</p>
-                    </div>
+                    <h4 class="card-body">Trips Completed: <%= user.trips_taken %></h4>
                 </div>
             </div>
         </div>
