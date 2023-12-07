@@ -922,6 +922,7 @@ app.post("/trip", (req, res) => {
   const query = "INSERT INTO trip (driverID, destination, original_location, active, payment_req, leaving_time, nickname) VALUES ($1, $2, $3, $4, $5, $6, $7);";
   db.none(query, [req.session.username, req.body.destination, req.body.original_location, req.body.active, req.body.payment_req, req.body.leaving_time, req.body.nickname])
     .then(() => {
+      db.none("UPDATE users SET trips_taken = trips_taken + 1 WHERE username = $1", [req.session.username]);
       console.log('Trip created successfully');
     })
     .catch(err => {
