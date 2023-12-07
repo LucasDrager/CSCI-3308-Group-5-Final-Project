@@ -96,43 +96,14 @@ app.get("/login", (req, res) => {
 app.get("/register", (req, res) => {
   res.render("pages/login", { showSignUpPanel: true });
 });
-
-
-    //const chatsData = `SELECT * FROM chats WHERE chats.user1 = ${req.session.user};`;
-   const chatsData2 = `SELECT * FROM chats WHERE chats.user2 = 'a';`;
- 
-  
-   await db.any(chatsData2,[req.session.user])
-   .then((chatsData2) => {
-     res.json(chatsData2);
-    //return res.status(200);
-   })
-   .catch((err) => {
-     res.status(500).json({ error: 'Internal Server Error' });
-     //console.log('fetched response 3');
-     //res.redirect("/messages");
-   });
- 
- 
- 
- });
  
  app.get("/username", async (req, res) => {
-  
   await db.oneOrNone('SELECT * FROM users WHERE username = $1', [req.params.username]);
   res.json({ status: 'success', data: userData });
-  
-  
-  
  });
-
  app.get("/messageLoad", async (req, res) => {
-
   res.render("pages/messaging.ejs");
- }
- 
- 
- );
+ });
  
  app.post('/messages1', async (req, res) => {
  
