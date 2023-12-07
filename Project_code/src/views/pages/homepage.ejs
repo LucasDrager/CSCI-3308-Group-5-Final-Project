@@ -1,5 +1,4 @@
 <%- include ('../partials/header') %>
-<%- include ('../partials/menu') %>
 <script src="../../resources/js/tripdisplay.js"></script>
 <script src="../../resources/js/homepage.js"></script>
 <link rel="stylesheet" href="../../resources/css/homepage.css">
@@ -16,11 +15,13 @@
                 <p><strong>Driver:</strong> <%=Data[i][j].driverid%></p>
                 <% if(Data[i][j].driverid == User){ %>
                     <button type="button" onclick="cancelTrip('<%-count%>','<%-Data[i][j].trip_id%>',false)">Cancel Trip</a>
+
                   <% } else{ %>  
                     <button type="button" onclick="cancelTrip('<%-count%>','<%-Data[i][j].trip_id%>',true)">Leave Trip</a>
+                        <% if(Data[i][j].driverid == User){ %>
 
 
-                        
+                        <% } %>
                  <% } %>
                 <button type="button" style="background-color: blue; margin-left: 10px;" onclick="toggle_visibility('<%-count%>','<%-Data[i][j].trip_id%>','<%-Data[i][j].driverid%>','<%-Data[i][j].destination%>','<%-Data[i][j].original_location%>');">More details</button>
             </div>
