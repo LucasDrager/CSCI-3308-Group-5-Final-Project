@@ -24,7 +24,9 @@ CREATE TABLE IF NOT EXISTS trip (
   destination varchar(255),
   original_location varchar(255),
   active boolean,
-  payment_req boolean
+  payment_req boolean,
+  leaving_time timestamp,
+  nickname varchar(255)
 );
 
 -- Create the passengers table

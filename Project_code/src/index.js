@@ -10,6 +10,8 @@ const session = require('express-session'); // To set the session object. To sto
 const bcrypt = require('bcrypt'); //  To hash passwords
 const multer = require('multer');
 const path = require('path');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
@@ -25,6 +27,7 @@ const dbConfig = {
 };
 
 const db = pgp(dbConfig);
+const secretKey = 'yourSecretKey'; 
 
 // test your database
 db.connect()
@@ -41,6 +44,10 @@ db.connect()
 // *****************************************************
 app.set('view engine', 'ejs'); // set the view engine to EJS
 app.use(bodyParser.json()); // specify the usage of JSON for parsing request body.
+
+const storage = multer.memoryStorage(); // Store files in memory NEEDED for uploadIMG api
+const upload = multer({ storage: storage });
+app.use(cookieParser());
 
 // initialize session variables
 app.use(
@@ -65,144 +72,71 @@ app.use(
 
 // Lab 11 test call
 app.get('/welcome', (req, res) => {
-  res.json({status: 'success', message: 'Welcome!'});
+  res.json({ status: 'success', message: 'Welcome!' });
 });
 
 app.get("/", (req, res) => {
+  const authToken = req.cookies.authtoken;
+  if (authToken) {
+    return res.redirect("/homepage");
+  }
   res.render("pages/login", { showSignUpPanel: false });
 });
 
 //Login Get call
-app.get("/login", (req,res) => {
-  if(req.query.message){
-    res.render("pages/login", {showSignUpPanel: false, message: req.query.message});
+app.get("/login", (req, res) => {
+  if (req.query.message) {
+    res.render("pages/login", { showSignUpPanel: false, message: req.query.message });
     return;
   }
   res.render("pages/login", { showSignUpPanel: false });
 });
 
 //Login Get call
-app.get("/register", (req,res) => {
+app.get("/register", (req, res) => {
   res.render("pages/login", { showSignUpPanel: true });
 });
-app.get("/chats", async (req, res) => {
 
-  // const chatsData = `SELECT * FROM chats WHERE chats.user1 = ${req.session.user};`;
-   const chatsData2 = `SELECT * FROM chats WHERE chats.user2 = 'a';`;
- 
-  
-   await db.any(chatsData2,[req.session.username])
-   .then((chatsData2) => {
-     res.json(chatsData2);
-    // return res.status(200);
-   })
-   .catch((err) => {
-     console.log(err);
-     res.status(500).json({ error: 'Internal Server Error' });
-     //console.log('fetched response 3');
-    // res.redirect("/messages");
-   });
- 
- 
- 
- });
- 
- app.get("/messageLoad", async (req, res) => {
 
-  res.render("pages/messaging.ejs");
- }
- 
- 
- );
- 
- app.post('/messages1', async (req, res) => {
-  console.log(req.body);
-   const { chats_id, sender, message_text } = req.body;
-   
-   console.log('fetched response 100');
-   console.log('fetched response');
-   // SQL query to insert the message into the database
-   const query = `INSERT INTO messages (chatID, sender, message_text) VALUES ('${chats_id}', '${sender}', '${message_text}');`
-   // Execute the query
-   console.log('fetched response 123');
-   await db.any(query).then((data) => {
-     console.log('fetched response 1234');
-     console.log(data);
-     console.log('fetched response 12345');
-     res.redirect("/messages");
-   }).catch((err) => {
-    console.log(err);
-    res.status(500).json({ error: 'Internal Server Error' });
-    console.log('fetched response 3');
-    res.redirect("/messages");
-  });
- });
- 
- // Route to fetch messages for a specific chat
- app.get("/messages", async (req, res) => {
-   //console.log('fetched response');
- 
-   const chatID = req.query.chats_id;
- 
-   console.log('fetched response 1000');
-   console.log(chatID);
-   
- 
- 
- 
-   const messageData = `SELECT * FROM messages WHERE messages.chatid = $1;`;
-   console.log('fetched response 1');
-   await db.any(messageData,[req.session.username])
-   .then((messageData) => {
-     console.log('fetched response 2');
- 
-     console.log(messageData);
-     console.log('fetched response 3');
-     res.json(messageData);
-    // return res.status(200);
-   })
-   .catch((err) => {
-     console.log(err);
-     res.status(500).json({ error: 'Internal Server Error' });
-     //console.log('fetched response 3');
-    // res.redirect("/messages");
-   });
- });
- 
-
-//Login post call
 app.post("/login", async (req, res) => {
   try {
     const usernameQuery = `SELECT * FROM users WHERE users.username = $1`;
     const data = await db.one(usernameQuery, [req.body.username]);
     const password = data.password;
-
     const match = await bcrypt.compare(req.body.password, password);
 
     if (match) {
       // Authentication successful
-      req.session.username = req.body.username;
-      req.session.first_name = data.first_name;
-      req.session.last_name = data.last_name;
-      req.session.email = data.email;
-      req.session.save();
-      res.redirect("/homepage"); 
+      const tokenPayload = {
+        username: req.body.username,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: data.email,
+        keepSignedIn: req.body.keepSignedIn,
+      };
+
+      const token = jwt.sign(tokenPayload, secretKey, { expiresIn: '1h' }); // Set your own secret key and expiration time
+      res.cookie('authtoken', token, { httpOnly: true });
+
+      req.session.keepSignedIn = req.body.keepSignedIn;
+
+      res.redirect("/homepage");
     } else {
       // Authentication failed
       res.render("pages/login", {showSignUpPanel: false, message: "Invalid password" });
     }
   } catch (err) {
     console.error(err);
-    res.render("pages/login", { showSignUpPanel: false, message: "User does not exist"});
-
+    res.render("pages/login", { showSignUpPanel: false, message: "User does not exist" });
   }
 });
+
 
 //Register post call
 app.post("/register", async (req, res) => {
   let hash;
-  bcrypt.genSalt(10, function(err, salt) {
-    bcrypt.hash(req.body.password, salt, function(err, passHash) {
+  bcrypt.genSalt(10, function (err, salt) {
+    bcrypt.hash(req.body.password, salt, function (err, passHash) {
       hash = passHash;
 
       const query = "INSERT INTO users (username, password, first_name, last_name, email, created_at) VALUES ($1, $2, $3, $4, $5, $6);";
@@ -224,22 +158,166 @@ app.post("/register", async (req, res) => {
   });
 });
 
-const auth = (req, res, next) => {
-  if (!req.session.username) {
-    // Default to login page.
+app.get('/keep-signed-in', (req, res) => {
+  const token = req.cookies.authtoken;
+
+  if (!token) {
+    return res.json({ keepSignedIn: false });
+  }
+
+  try {
+    const decoded = jwt.verify(token, secretKey);
+    res.json({ keepSignedIn: decoded.keepSignedIn });
+  } catch (error) {
+    res.json({ keepSignedIn: false });
+  }
+});
+
+const verifyToken = (req, res, next) => {
+  const token = req.cookies.authtoken;
+
+  if (!token) {
     return res.redirect('/login?message=Please%20log%20in%20to%20access%20this%20page');
-  } 
-  next();
+  }
+
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      return res.redirect('/login?message=Invalid%20token');
+    }
+
+    req.session.username = decoded.username;
+    req.session.first_name = decoded.first_name;
+    req.session.last_name = decoded.last_name;
+    req.session.email = decoded.email;
+    req.session.save();
+    next();
+  });
 };
 
-app.use(auth);
+app.use(verifyToken);
+
+// const auth = (req, res, next) => {
+//   if (!req.session.username) {
+//     // Default to login page.
+//     return res.redirect('/login?message=Please%20log%20in%20to%20access%20this%20page');
+//   }
+//   next();
+// };
+
+// app.use(auth);
 
 //log out get call
 app.get("/logout", (req, res) => {
+  res.clearCookie('authtoken');
   req.session.destroy();
   res.render("pages/login", { showSignUpPanel: false });
 });
 
+app.get("/chats", async (req, res) => {
+
+  // const chatsData = `SELECT * FROM chats WHERE chats.user1 = ${req.session.user};`;
+  const chatsData2 = `SELECT * FROM chats WHERE chats.user2 = 'a';`;
+
+
+  await db.any(chatsData2, [req.session.username])
+    .then((chatsData2) => {
+      res.json(chatsData2);
+      // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+      // res.redirect("/messages");
+    });
+
+
+
+});
+
+app.get("/messageLoad", async (req, res) => {
+
+  res.render("pages/messaging.ejs");
+}
+
+
+);
+
+app.post('/messages1', async (req, res) => {
+  console.log(req.body);
+  const { chats_id, sender, message_text } = req.body;
+
+  console.log('fetched response 100');
+  console.log('fetched response');
+  // SQL query to insert the message into the database
+  const query = `INSERT INTO messages (chatID, sender, message_text) VALUES ('${chats_id}', '${sender}', '${message_text}');`
+  // Execute the query
+  console.log('fetched response 123');
+  await db.any(query).then((data) => {
+    console.log('fetched response 1234');
+    console.log(data);
+    console.log('fetched response 12345');
+    res.redirect("/messages");
+  }).catch((err) => {
+    console.log(err);
+    res.status(500).json({ error: 'Internal Server Error' });
+    console.log('fetched response 3');
+    res.redirect("/messages");
+  });
+});
+
+// Route to fetch messages for a specific chat
+app.get("/messages", async (req, res) => {
+  //console.log('fetched response');
+
+  const chatID = req.query.chats_id;
+
+  console.log('fetched response 1000');
+  console.log(chatID);
+
+
+
+
+  const messageData = `SELECT * FROM messages WHERE messages.chatid = $1;`;
+  console.log('fetched response 1');
+  await db.any(messageData, [req.session.username])
+    .then((messageData) => {
+      console.log('fetched response 2');
+
+      console.log(messageData);
+      console.log('fetched response 3');
+      res.json(messageData);
+      // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+      // res.redirect("/messages");
+    });
+});
+
+app.get("/chats", async (req, res) => {
+
+  // const chatsData = `SELECT * FROM chats WHERE chats.user1 = ${req.session.user};`;
+  const chatsData2 = `SELECT * FROM chats WHERE chats.user2 = 'a';`;
+
+
+  await db.any(chatsData2, [req.session.username])
+    .then((chatsData2) => {
+      res.json(chatsData2);
+      // return res.status(200);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+      //console.log('fetched response 3');
+      // res.redirect("/messages");
+    });
+
+
+
+});
 
 app.get('/recent-transactions', async (req, res) => {
   try {
@@ -272,7 +350,7 @@ app.get('/payment/:username', (req, res) => {
     value: req.query.value || '10.00',
     client_id: process.env.client_id,
     recipient: req.query.recipient || 'recipient@example.com',
-    username: req.params.username, 
+    username: req.params.username,
   };
   res.render('pages/payment', { data });
 });
@@ -302,7 +380,7 @@ app.post('/add_transaction', async (req, res) => {
     `;
 
     await db.none(query, [sender_username, receiver_id, amount, description, transaction_date]);
-    
+
     res.status(200).send('Transaction added successfully');
   } catch (error) {
     console.error('Error adding transaction', error);
@@ -315,26 +393,25 @@ app.get("/settings", (req, res) => {
   res.render("pages/settings")
 });
 
-const storage = multer.memoryStorage(); // Store files in memory
-const upload = multer({ storage: storage });
-
 // Settings API Calls
 app.post("/uploadIMG", upload.single("profileImage"), async (req, res) => {
   try {
-    const { username } = req.session; // Assuming you store the username in the session
+    const { username } = req.session;
     const imageBuffer = req.file.buffer;
 
     // Update or insert user profile image
     await db.query(
       "INSERT INTO users (username, profile_img) VALUES ($1, $2) ON CONFLICT (username) DO UPDATE SET profile_img = $2",
       [username, imageBuffer]
-    );
-      res.render("/settings");
+    ).catch(error => console.error('Error executing SQL query:', error));
+    console.log("Uploaded image file");
+    res.redirect("/settings");
   } catch (error) {
     console.error("Error uploading image:", error);
     res.status(500).json({ success: false, message: "Internal server error." });
   }
 });
+
 
 app.post("/change_username", async (req, res) => {
   try {
@@ -342,16 +419,19 @@ app.post("/change_username", async (req, res) => {
     const { username } = req.session; // Use req.session for accessing the current user's username
 
     // Update the username in the database
+    console.log('Updating username:', username, 'to', newUsername);
     const result = await db.query(
       "UPDATE users SET username = $1 WHERE username = $2 RETURNING *",
       [newUsername, username]
     );
-
+    console.log('Database Update Result:', result);
     if (result.length > 0) {
       const updatedUser = result[0];
       // Update the session with the new username
+      console.log('Before Update - Session:', req.session);
       req.session.username = updatedUser.username;
-      res.redirect("/settings");
+      console.log('After Update - Session:', req.session);
+      res.redirect("/logout");
     } else {
       res.status(404).json({ success: false, message: "User not found" });
     }
@@ -380,7 +460,7 @@ app.post("/change_password", async (req, res) => {
 
         // Update the user's password in the database
         await db.none('UPDATE users SET password = $1 WHERE username = $2', [hashedNewPassword, username]);
-
+        console.log('Password updated redirecting to /settings');
         res.redirect("/settings");
       } else {
         res.status(401).json({ success: false, message: 'Current password is incorrect' });
@@ -401,7 +481,7 @@ app.get("/users", async (req, res) => {
     const userData = await db.any('SELECT * FROM users');
     // If any users exist
     if (userData) {
-      res.render("pages/users.ejs", { users : userData });
+      res.render("pages/users.ejs", { users: userData });
     } else {
       res.status(404).json({ success: false, message: 'User not found' });
     }
@@ -476,25 +556,31 @@ app.get("/profile", (req, res) => {
 // Profile Page GET API call
 app.get("/profile/:username", async (req, res) => {
   try {
-    // Fetch the user's data from the database
-    const userSession = req.session.username;
-    const userData = await db.oneOrNone('SELECT * FROM users WHERE username = $1', [req.params.username]);
-    const userRatings = await db.any('SELECT * FROM ratings WHERE ratee_id = $1', [req.params.username]);
-    // If the user exists
-    if (userData) {
-      res.render("pages/profile.ejs", { user : userData , ratings : userRatings, activeUser : userSession});
-    } else {
-      res.status(404).json({ success: false, message: 'User not found' });
-    }
+      // Fetch the user's data from the database
+      const userSession = req.session.username;
+      const userData = await db.oneOrNone('SELECT * FROM users WHERE username = $1', [req.params.username]);
+      const userRatings = await db.any('SELECT * FROM ratings WHERE ratee_id = $1', [req.params.username]);
+
+      // Log user data and profile image data
+      console.log("User Data:", userData);
+      if (userData && userData.profile_img) {
+          console.log("Profile Image Data (length):", userData.profile_img.length);
+      }
+      if (userData) {
+          res.render("pages/profile.ejs", { user: userData, ratings: userRatings, activeUser: userSession });
+      } else {
+          console.log("User not found");
+          res.status(404).json({ success: false, message: 'User not found' });
+      }
   } catch (error) {
-    console.error('Error finding profile:', error);
-    res.status(500).json({ success: false, message: 'Internal server error' });
+      console.error('Error finding profile:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
 // Add Review POST Call
 app.post('/add_review', async (req, res) => {
-  try{
+  try {
     const values = [req.session.username, req.body.ratee_id, req.body.rating_value, req.body.review];
     await db.none('INSERT INTO ratings (rater_id, ratee_id, rating_value, rated_at, review) VALUES ($1, $2, $3, NOW(), $4)', values);
     res.redirect('/profile/' + req.body.ratee_id);
@@ -506,7 +592,7 @@ app.post('/add_review', async (req, res) => {
 
 // Lab 11 test call
 app.get('/welcome', (req, res) => {
-  res.json({status: 'success', message: 'Welcome!'});
+  res.json({ status: 'success', message: 'Welcome!' });
 });
 
 app.get("/homepage", (req, res) => {
@@ -517,48 +603,48 @@ app.get("/homepage", (req, res) => {
   //   AND (passengers.passenger != trip.driverid) 
   //   AND ((passengers.passenger = $1) OR (trip.driverid = $1));`
   const usertrips = `SELECT * FROM trip WHERE trip.driverid = $1;`;
-  const userJoinedTrips =`SELECT * FROM trip WHERE trip.trip_id IN (SELECT trip_id FROM passengers WHERE passengers.passenger = $1);`;
+  const userJoinedTrips = `SELECT * FROM trip WHERE trip.trip_id IN (SELECT trip_id FROM passengers WHERE passengers.passenger = $1);`;
   db.task('get-everything', task => {
-    return task.batch([task.any(usertrips,[req.session.username]), task.any(userJoinedTrips,[req.session.username])]);
+    return task.batch([task.any(usertrips, [req.session.username]), task.any(userJoinedTrips, [req.session.username])]);
   })
-  .then((data) => {
-    console.log(data);
-    res.render("pages/homepage.ejs",{'Data':data,'User':req.session.username});
-  })
-  .catch((err) => {
-    console.log(err);
-    res.redirect("homepage");
-  });
+    .then((data) => {
+      console.log(data);
+      res.render("pages/homepage.ejs", { 'Data': data, 'User': req.session.username });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.redirect("homepage");
+    });
 });
 
-app.delete("/CancelUserTrip/:Trip_id", (req,res) => {
+app.delete("/CancelUserTrip/:Trip_id", (req,  res) => {
   const deleteQuery = "DELETE FROM passengers WHERE trip_id = $1 AND passenger = $2;";
-  db.any(deleteQuery,[req.params.Trip_id,req.session.username])
-  .then((data) => {
-    console.log("Data deleted successfully");
-  })
-  .catch((err) => {
-    console.log(err);
-    res.redirect("homepage");
-  });
+  db.any(deleteQuery,  [req.params.Trip_id,  req.session.username])
+      .then((data) => {
+        console.log("Data deleted successfully");
+      })
+      .catch((err) => {
+        console.log(err);
+        res.redirect("homepage");
+      });
 });
 
-app.delete("/CancelUserMadeTrip/:Trip_id", (req,res) => {
+app.delete("/CancelUserMadeTrip/:Trip_id", (req, res) => {
   const deleteQuery = "DELETE FROM passengers WHERE trip_id = $1; DELETE FROM trip WHERE trip_id = $1;";
-  db.any(deleteQuery,[req.params.Trip_id])
-  .then((data) => {
-    console.log("Data deleted successfully");
-  })
-  .catch((err) => {
-    console.log(err);
-    res.redirect("homepage");
-  });
+  db.any(deleteQuery, [req.params.Trip_id])
+    .then((data) => {
+      console.log("Data deleted successfully");
+    })
+    .catch((err) => {
+      console.log(err);
+      res.redirect("homepage");
+    });
 });
 
 app.get("/tripcreate", (req, res) => {
   res.redirect("")
 });
-  
+
 // Authentication Middleware.
 
 
@@ -570,31 +656,26 @@ app.get("/createTrip", (req, res) => {
 //Create a trip:
 
 app.post("/trip", (req, res) => {
-  const query = "INSERT INTO trip (driverID, destination, original_location) VALUES ($1, $2, $3);";
-  //REMOVE COMMENT. Attempt to use both session variable and variable from page.
-  db.none(query, [req.session.username, req.body.destination, req.body.original_location])
+  const query = "INSERT INTO trip (driverID, destination, original_location, active, payment_req, leaving_time, nickname) VALUES ($1, $2, $3, $4, $5, $6, $7);";
+  db.none(query, [req.session.username, req.body.destination, req.body.original_location, req.body.active, req.body.payment_req, req.body.leaving_time, req.body.nickname])
     .then(() => {
-      // res.json({ status: 'success', message: 'Trip created successfully' });
       console.log('Trip created successfully');
     })
     .catch(err => {
       console.log(err);
-      // res.json({ status: 'error', message: 'Failed to update trip' });
     });
 });
 
 //Edit trip details:
 
 app.put("/trip/:trip_id", (req, res) => {
-  const query = "UPDATE trip SET driverID = $1, destination = $2, original_location = $3 WHERE trip_id = $4;";
-  db.none(query, [req.session.username, req.body.destination, req.body.original_location, req.params.trip_id])
+  const query = "UPDATE trip SET driverID = $1, destination = $2, original_location = $3, active = $4, payment_req = $5, leaving_time = $6, nickname = $7 WHERE trip_id = $8;"; 
+  db.none(query, [req.session.username, req.body.destination, req.body.original_location, req.body.active, req.body.payment_req, req.body.leaving_time, req.body.nickname, req.params.trip_id])
     .then(() => {
-      // res.json({ status: 'success', message: 'Trip updated successfully' });
       console.log('Trip updated successfully');
     })
     .catch(err => {
       console.log(err);
-      // res.json({ status: 'error', message: 'Failed to update trip' });
     });
 });
 
@@ -652,9 +733,6 @@ app.delete("/trip/:trip_id", async (req, res) => {
   }
 });
 
-// Authentication Required
-app.use(auth);
-  
 // *****************************************************
 // <!-- Section 5 : Start Server-->
 // *****************************************************
