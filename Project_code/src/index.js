@@ -121,12 +121,6 @@ app.get("/register", (req, res) => {
  // Route to fetch messages for a specific chat
  app.get("/messages/1", async (req, res) => {
    //console.log('fetched response');
- 
-   
-   
- 
- 
- 
    const messageData = `SELECT * FROM messages WHERE messages.chats_id = 1;`;
    await db.any(messageData,[req.session.user])
    .then((messageData) => {
@@ -145,12 +139,6 @@ app.get("/register", (req, res) => {
   // Route to fetch messages for a specific chat
   app.get("/messages/2", async (req, res) => {
     //console.log('fetched response');
-  
-  
-    
-  
-  
-  
     const messageData = `SELECT * FROM messages WHERE messages.chats_id = 2;`;
     await db.any(messageData,[req.session.user])
     .then((messageData) => {
@@ -169,14 +157,8 @@ app.get("/register", (req, res) => {
   
   app.get("/messages/3", async (req, res) => {
     //console.log('fetched response');
-  
     const chatID = req.query.chats_id;
-  
     console.log(chatID);
-    
-  
-  
-  
     const messageData = `SELECT * FROM messages WHERE messages.chats_id = 3;`;
     await db.any(messageData,[req.session.user])
     .then((messageData) => {
@@ -598,14 +580,33 @@ app.get('/recent-transactions', async (req, res) => {
 // });
 
 
-app.get('/payment/:driverid', (req, res) => {
-  const data = {
-    value: req.query.value || '10.00',
-    client_id: process.env.client_id,
-    recipient: req.query.recipient || 'example@example.com',
-    username: req.params.driverid, 
-  };
-  res.render('pages/payment', { data });
+app.get('/payment/:driverid', async (req, res) => {
+  try {
+    const driverInfoQuery = `
+      SELECT trip.trip_id, trip.nickname, users.email as driver_email
+      FROM trip
+      INNER JOIN users ON trip.driverid = users.username
+      WHERE trip.driverid = $1;
+    `;
+
+    const driverInfo = await db.one(driverInfoQuery, [req.params.driverid]);
+
+    const data = {
+      value: req.query.value || '10.00',
+      client_id: process.env.client_id,
+      recipient: req.query.recipient || driverInfo.driver_email,
+      username: req.params.driverid,
+      tripInfo: {
+        trip_id: driverInfo.trip_id,
+        nickname: driverInfo.nickname || "trip",
+      },
+    };
+
+    res.render('pages/payment', { data });
+  } catch (error) {
+    console.error('Error fetching driver information:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 

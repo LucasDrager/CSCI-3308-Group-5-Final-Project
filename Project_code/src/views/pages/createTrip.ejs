@@ -31,18 +31,15 @@
             <div class="invalid-feedback">Please provide an original location.</div>
           </div>
 
-          <div class="form-group pb-3 switch-container">
-            <label class="switch">
-              <input type="checkbox" id="requirePayments" name="requirePayments">
-              <span class="slider round"></span>
-            </label>
-            <span class="text">Require Payment?</span>
-          </div>
-
-
           <div class="form-group pb-3">
             <label for="active">Active</label>
             <input type="checkbox" class="formcheckbox" id="active" name="active" required/>      
+            <div class="invalid-feedback"></div>
+          </div>
+          
+          <div class="form-group pb-3">
+            <label for="payment_req">Payment Required</label>
+            <input type="checkbox" class="formcheckbox" class="formcheckbox" id="payment_req" name="payment_req" required/>
             <div class="invalid-feedback"></div>
           </div>
           
@@ -51,7 +48,7 @@
             <input type="datetime-local" class="form-control" id="leaving_time" name="leaving_time" required/>
             <div class="invalid-feedback">Please provide a leaving time.</div>
           </div>
-         
+          
           <button type="submit" class="btn btn-primary">Submit</button>
         </form>
       </div>
@@ -172,7 +169,6 @@
     event.preventDefault(); // prevent the form from submitting normally
     var destination = document.getElementById('destination').value;
     var original_location = document.getElementById('original_location').value;
-    var paymentReqCheckbox = document.getElementById('requirePayments').checked;
     fetch('/trip', {
       method: 'POST',
       headers: {
@@ -181,8 +177,6 @@
       body: JSON.stringify({
         destination: destination,
         original_location: original_location,
-
-        payment_req: paymentReqCheckbox
         active: document.getElementById('active').checked,
         payment_req: document.getElementById('payment_req').checked,
         leaving_time: document.getElementById('leaving_time').value,

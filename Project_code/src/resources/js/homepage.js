@@ -1,7 +1,7 @@
 // script.js
 const cancelTrip = async (cardId,tripId,driver) => {
   try {
-    // Implement cancel trip logic here...
+
     console.log(`Cancel trip with ID ${tripId}`);
     const elementToRemove = document.getElementById(`card-${cardId}`);
     elementToRemove.remove();
@@ -39,6 +39,7 @@ const searchTrip = () => {
 //   // Redirect to the payment page
 //   window.location.href = paymentUrl;
 // }
+
 function payForTrip(username, driverEmail, value) {
   const paymentUrl = '/payment/' + username;
 
