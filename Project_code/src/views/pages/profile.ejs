@@ -1,10 +1,17 @@
 <%- include ('../partials/header') %>
-<%- include ('../partials/menu') %>
+<header>
+    <link rel="stylesheet" href="../../resources/css/settings.css">
+    <h1>Profile</h1>
+</header>
 <body>
     <div class="container mt-3">
         <div class="row">
             <div class="col-md-4">
-                <img src="" alt="Profile Picture Here" class="img-thumbnail">
+                <% if (user.profile_img) { %>
+                    <img src="data:image/<%= user.profile_img_format %>;base64,<%= user.profile_img.toString('base64') %>" alt="Profile Picture Here" class="img-thumbnail">
+                <% } else { %>
+                    <p>No profile image available</p>
+                <% } %>
             </div>
             <div class="col-md-8">
                 <div class="card">

@@ -24,7 +24,9 @@ CREATE TABLE IF NOT EXISTS trip (
   destination varchar(255),
   original_location varchar(255),
   active boolean,
-  payment_req boolean
+  payment_req boolean,
+  leaving_time timestamp,
+  nickname varchar(255)
 );
 
 -- Create the passengers table
@@ -73,7 +75,7 @@ CREATE TABLE IF NOT EXISTS trip_to_users (
 );
 
 CREATE TABLE IF NOT EXISTS messages (
-  chatID  PRIMARY KEY,
+  chatID varchar(50),
   sender varchar(50) REFERENCES users(username),
   reciever varchar(50) REFERENCES users(username),
   message_text text,
@@ -81,14 +83,15 @@ CREATE TABLE IF NOT EXISTS messages (
 );
 
 CREATE TABLE IF NOT EXISTS chats (
-chatID varchar(50),
-FOREIGN KEY (user1) varchar(50) REFERENCES users(username),
-FOREIGN KEY (user2) varchar(50) REFERENCES users(username)
-
+  chatID varchar(50),
+  user1 varchar(50),
+  user2 varchar(50),
+  FOREIGN KEY (user1) REFERENCES users(username),
+  FOREIGN KEY (user2) REFERENCES users(username)
 );
 
-ALTER TABLE messages
-ADD chats_ID int;
+-- ALTER TABLE messages
+-- ADD chats_ID int;
 
-ALTER TABLE messages
-DROP COLUMN chatID;
+-- ALTER TABLE messages
+-- DROP COLUMN chatID;

@@ -25,8 +25,33 @@ describe('Server!', () => {
 
   // ===========================================================================
   // TO-DO: Part A Login unit test case
-  //We are checking POST /add_user API by passing the user info in the correct order. This test case should pass and return a status 200 along with a "Success" message.
-  //Positive cases
+  // We are checking POST /add_user API by passing the user info in the correct order. This test case should pass and return a status 200 along with a "Success" message.
+  // Positive cases
+  it('positive : /login', function (done) {
+    chai
+      .request(server)
+      .post("/login")
+      .set('content-type', 'application/x-www-form-urlencoded')
+      .send({username: "Testerson", password: "password"})
+      .end(function (err, res) {
+        expect(res).to.have.status(200);
+        done();
+      });
+  });
+
+  it('Negative : /register. Checking invalid user', function (done) {
+    chai
+      .request(server)
+      .post("/login")
+      .set('content-type', 'application/x-www-form-urlencoded')
+      .send()
+      .end(function (err, res) {
+        expect(res).to.have.status(200);
+        done();
+      });
+  });
+
+  // TO-DO: Part B Other test cases
   it('positive : /register', done => {
     chai
       .request(server)

@@ -1,5 +1,6 @@
+let EVENT_MODAL;
 function toggle_visibility(id,trip_id,driver_id,destination,original_location){
-    let EVENT_MODAL = new bootstrap.Modal(document.getElementById('event-modal'));
+    EVENT_MODAL = new bootstrap.Modal(document.getElementById('event-modal'));
     displayID = id;
     document.getElementById("TripName").innerHTML = trip_id;
     document.getElementById("TripDriver").innerHTML = driver_id;
@@ -44,4 +45,8 @@ async function getPassengers(trip_id){
     }
     console.log(people)
     return people;
+}
+
+function closeModal(){
+    EVENT_MODAL.hide();
 }
