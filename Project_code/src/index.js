@@ -586,16 +586,29 @@ app.get('/recent-transactions', async (req, res) => {
 });
 
 
-app.get('/payment/:username', (req, res) => {
+// app.post('/payment/:username', (req, res) => {
+//   console.log("post function");
+//   const data = {
+//     value: req.body.value || '10.00',
+//     client_id: process.env.client_id,
+//     recipient: req.body.recipient || 'recipient@example.com',
+//     username: req.params.username,
+//   };
+//   res.render('pages/payment', { data });
+// });
 
+
+app.get('/payment/:driverid', (req, res) => {
   const data = {
     value: req.query.value || '10.00',
     client_id: process.env.client_id,
-    recipient: req.query.recipient || 'recipient@example.com',
-    username: req.params.username,
+    recipient: req.query.recipient || 'example@example.com',
+    username: req.params.driverid, 
   };
   res.render('pages/payment', { data });
 });
+
+
 
 
 app.post('/add_transaction', async (req, res) => {
@@ -838,7 +851,18 @@ app.get('/welcome', (req, res) => {
 });
 
 app.get("/homepage", (req, res) => {
-  const usertrips = `SELECT * FROM trip WHERE trip.driverid = $1;`;
+  // const tripData = `SELECT trip.trip_id,trip.driverid,trip.destination,trip.original_location 
+  // FROM trip INNER JOIN passengers ON trip.trip_id = passengers.trip_id 
+  // INNER JOIN users ON users.username = passengers.passenger 
+  // WHERE trip.active = TRUE 
+  //   AND (passengers.passenger != trip.driverid) 
+  //   AND ((passengers.passenger = $1) OR (trip.driverid = $1));`
+  const usertrips = `
+    SELECT trip.*, users.username as driver_username, users.first_name as driver_first_name, users.last_name as driver_last_name, users.email as driver_email
+    FROM trip
+    INNER JOIN users ON trip.driverid = users.username
+    WHERE trip.driverid = $1;
+  `;
   const userJoinedTrips = `SELECT * FROM trip WHERE trip.trip_id IN (SELECT trip_id FROM passengers WHERE passengers.passenger = $1);`;
   db.task('get-everything', task => {
     return task.batch([task.any(usertrips, [req.session.username]), task.any(userJoinedTrips, [req.session.username])]);
@@ -892,6 +916,7 @@ app.get("/createTrip", (req, res) => {
 //Create a trip:
 
 app.post("/trip", (req, res) => {
+
   const query = "INSERT INTO trip (driverID, destination, original_location, active, payment_req, leaving_time, nickname) VALUES ($1, $2, $3, $4, $5, $6, $7);";
   db.none(query, [req.session.username, req.body.destination, req.body.original_location, req.body.active, req.body.payment_req, req.body.leaving_time, req.body.nickname])
     .then(() => {

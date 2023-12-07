@@ -9,9 +9,9 @@
 <body>
 
   <!-- Centered container with a shadow box -->
-  <div class="container">
+  <div class="container" id="maincontainer">
     <div class="box">
-    <h3>Paying for trip to <%= data.recipient %></h3>
+      <h3>Paying for trip to <%= data.recipient %></h3>
 
       <!-- Use the data passed from the server-side -->
       <script>
@@ -20,50 +20,50 @@
       </script>
 
       <!-- Dynamically create the PayPal Script with dynamic data -->
-
       <script>
-        var scriptElement = document.createElement('script');
-        scriptElement.src = link;
-        document.body.appendChild(scriptElement);
+        document.addEventListener('DOMContentLoaded', function () {
+          var scriptElement = document.createElement('script');
+          scriptElement.src = link;
 
-        scriptElement.onload = function() {
-            document.body.appendChild(scriptElement); // Not sure if this is right, need to consult documentation again for this.
+          document.body.appendChild(scriptElement);
 
-          paypal.Buttons({
-            createOrder: function (data, actions) {
-              return actions.order.create({
-                purchase_units: [{
-                  amount: {
-                    value: '<%= data.value %>'
-                  },
-                  payee: {
-                    email_address: '<%= data.recipient %>'
-                  }
-                }]
-              });
-            },
-            onApprove: function (data, actions) {
-              return actions.order.capture().then(function (details) {
-
-                fetch('/add_transaction', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                })
-                .then(response => response.text())
-                .then(result => {
-                  console.log(result);
-                  alert('Transaction completed by ' + details.payer.name.given_name);
-                })
-                .catch(error => {
-                  console.error('Error adding transaction', error);
-                  alert('Error adding transaction');
+          scriptElement.onload = function () {
+            paypal.Buttons({
+              createOrder: function (data, actions) {
+                return actions.order.create({
+                  purchase_units: [{
+                    amount: {
+                      value: '<%= data.value %>'
+                    },
+                    payee: {
+                      email_address: '<%= data.recipient %>'
+                    }
+                  }]
                 });
-              });
-            }
-          }).render('body');
-        };
+              },
+              onApprove: function (data, actions) {
+                return actions.order.capture().then(function (details) {
+
+                  fetch('/add_transaction', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                  })
+                    .then(response => response.text())
+                    .then(result => {
+                      console.log(result);
+                      alert('Transaction completed by ' + details.payer.name.given_name);
+                    })
+                    .catch(error => {
+                      console.error('Error adding transaction', error);
+                      alert('Error adding transaction');
+                    });
+                });
+              }
+            }).render('.box');
+          };
+        });
       </script>
     </div>
   </div>
