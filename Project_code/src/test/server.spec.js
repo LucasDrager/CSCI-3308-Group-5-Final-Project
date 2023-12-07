@@ -27,12 +27,24 @@ describe('Server!', () => {
   // TO-DO: Part A Login unit test case
   // We are checking POST /add_user API by passing the user info in the correct order. This test case should pass and return a status 200 along with a "Success" message.
   // Positive cases
-  it('positive : /login', function (done) {
+  it('Positive : /login', function (done) {
     chai
       .request(server)
       .post("/login")
       .set('content-type', 'application/x-www-form-urlencoded')
       .send({username: "Testerson", password: "password"})
+      .end(function (err, res) {
+        expect(res).to.have.status(200);
+        done();
+      });
+  });
+
+  it('Negative : /login', function (done) {
+    chai
+      .request(server)
+      .post("/login")
+      .set('content-type', 'application/x-www-form-urlencoded')
+      .send({username: "", password: ""})
       .end(function (err, res) {
         expect(res).to.have.status(200);
         done();
